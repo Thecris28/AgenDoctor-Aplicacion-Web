@@ -34,7 +34,7 @@ export default function LoginPage() {
       try {
         const data = await getLogin(formLoginData.email, formLoginData.password);
         console.log('Login successful:', data);
-        if (data[0].TipoUsuarioIdTipoUsuario === 1) {
+        if (data[0].TipoUsuarioIdTipoUsuario === 1) { // Probando SSH
           router.push('/appointment');
         }
       } catch (error: any) {
