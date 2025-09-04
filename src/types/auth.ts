@@ -6,7 +6,7 @@ export interface User {
   GoogleId: string | null;
   PersonaIdPersona: number;
   PsicologoIdPsicologo: number | null;
-  TipoUsuarioId: number;
+  TipoUsuarioIdTipoUsuario: number;
   Token: string | null;
   auth_method: 'local' | 'google' | string;
 }
