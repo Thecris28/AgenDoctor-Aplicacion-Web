@@ -10,7 +10,7 @@ import {
   ChevronRight,
   Brain
 } from 'lucide-react';
-import { Especialidad } from '@/types/agendamiento';
+import { Especialidad } from '@/interfaces/agendamiento';
 
 
 interface Props {

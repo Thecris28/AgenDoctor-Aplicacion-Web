@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import GoogleIcon from '../ui/GoogleIcon';
+import GoogleIcon from '../../../components/ui/GoogleIcon';
 import { getLogin } from '@/services/authService';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LoginCredentials } from '@/types/auth';
+import { LoginCredentials } from '@/interfaces/auth';
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -34,8 +34,13 @@ export default function LoginPage() {
       try {
         const data = await getLogin(formLoginData.email, formLoginData.password);
         console.log('Login successful:', data);
-        if (data[0].TipoUsuarioIdTipoUsuario === 1) { // Probando SSH
+        if (data[0].TipoUsuarioId === 1) { // Probando SSH
+          console.log('Login successful:', data);
           router.push('/appointment');
+        }
+        if (data[0].TipoUsuarioId === 2) { 
+          console.log('Login successful:', data);
+          router.push('/dashboard');
         }
       } catch (error: any) {
         setLoginError(error.message || 'Credenciales incorrectas. Por favor intenta de nuevo.');
@@ -156,7 +161,7 @@ export default function LoginPage() {
             <p className="text-gray-600 text-sm">
               ¿No tienes una cuenta?
               <Link
-                href="/register"
+                href="/register/roleSelection"
                 className="ml-2 text-blue-600 hover:text-blue-500 font-medium transition-colors duration-200"
               >
                 Regístrate

@@ -1,4 +1,4 @@
-import { Especialidad, Profesional } from '../types/agendamiento';
+import { Especialidad, Profesional } from '../interfaces/agendamiento';
 
 export const especialidades: Especialidad[] = [
   {

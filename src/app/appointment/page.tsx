@@ -8,7 +8,7 @@ import TimeSlots from '@/appointment/components/TimeSlots';
 import Calendar from '@/components/Calendar'
 import EspecialidadCard from '@/components/EspecialidadCard';
 import { especialidades, profesionales } from '@/data/mockData';
-import { Especialidad, Profesional } from '@/types/agendamiento';
+import { Especialidad, Profesional } from '@/interfaces/agendamiento';
 import { ArrowLeft, Calendar1, Clock } from 'lucide-react';
 import React, { useState }  from 'react'
 
@@ -99,7 +99,7 @@ export default function AppointmentPage() {
         {canGoBack && (
           <button
             onClick={handleBack}
-            className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 mb-6 transition-colors"
+            className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver</span>

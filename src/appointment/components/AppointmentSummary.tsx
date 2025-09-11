@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, Clock, User, CheckCircle } from 'lucide-react';
-import { Profesional } from '@/types/agendamiento';
+import { Profesional } from '@/interfaces/agendamiento';
 
 interface Props {
   profesional: Profesional;
