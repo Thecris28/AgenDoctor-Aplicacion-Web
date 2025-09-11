@@ -32,7 +32,9 @@ export interface BaseRegistration {
   password: string;
   confirmPassword: string;
   name: string;
+  secondName?: string;
   lastName: string;
+  secondLastName: string;
   phone: string;
 }
 
@@ -43,11 +45,17 @@ export interface PatientRegistration extends BaseRegistration {
 }
 
 export interface PsychologistRegistration extends BaseRegistration {
-  specialty: string;
-  licenseNumber: string;
-  yearsOfExperience: number;
-  education: string;
+  idSpecialty: number;
+  rut: string;
+  dateOfBirth: string;
+  yearsOfExperience?: number;
+  education?: string;
   biography?: string;
+  sessionPrice: number;
+  IdTipoUsuario: number;
+  address?: string;
+  numberAddress?: string;
+  Idcomuna: number;
 }
 
 export interface ResponseProfesional {

@@ -15,6 +15,6 @@ export const useProfesionalStore = create<ProfesionalStore>((set, get) => ({
     clearProfesional: () => set({ profesional: null }),
     getNombreCompleto: () => {
       const { profesional } = get();
-      return profesional ? `${profesional.nombre} ${profesional.apellidoPaterno}` : '';
+      return profesional ? `${profesional.nombre} ${profesional.apellidoPaterno} ${profesional.apellidoMaterno}` : '';
     }
 }))

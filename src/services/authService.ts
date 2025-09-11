@@ -23,8 +23,10 @@ export async function getLogin(email: string, password: string) {
     return data as User[];
 }
 
-export async function registerPsychologist(psychologistData: PsychologistRegistration) {
-  const response = await fetch('https://tu-api.com/register', {
+const API_REGISTER_URL = 'http://localhost:3000/usuarios/registro_psicologo';
+
+export async function registerPsychologist(psychologistData:any) {
+  const response = await fetch(API_REGISTER_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
