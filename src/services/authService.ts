@@ -26,17 +26,24 @@ export async function getLogin(email: string, password: string) {
 const API_REGISTER_URL = 'http://localhost:3000/usuarios/registro_psicologo';
 
 export async function registerPsychologist(psychologistData:any) {
-  const response = await fetch(API_REGISTER_URL, {
+  console.log('Iniciando registro con datos:', psychologistData);
+  
+    const response = await fetch(API_REGISTER_URL, {
     method: 'POST',
+    body: JSON.stringify(psychologistData),
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(psychologistData),
   });
+  const data = await response.json();
+  console.log('Respuesta del registro:', data.message);
+
   if (!response.ok) {
-    throw new Error('Error en registro');
+    throw new Error(data.message);
   }
-  return response.json();
+
+  return data;
+
 }
 
 export async function registerPatient(patientData: PatientRegistration) {
@@ -50,6 +57,7 @@ export async function registerPatient(patientData: PatientRegistration) {
   if (!response.ok) {
     throw new Error('Error en registro');
   }
+  console.log('Respuesta del registro:', response);
   return response.json();
 }
 
