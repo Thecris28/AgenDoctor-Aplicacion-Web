@@ -31,7 +31,7 @@ export default function PsychologistRegistrationPage() {
     const fetchComunas = async () => {
       try {
         const data = await getComunas();
-        setComunas(data);
+        setComunas(data.data);
       } catch (error) {
         console.error('Error al cargar comunas:', error);
       } finally {
@@ -47,9 +47,9 @@ export default function PsychologistRegistrationPage() {
     password: '',
     confirmPassword: '',
     name: profesional?.nombre.split(' ')[0] || '',
-    secondName: profesional?.apellidoPaterno || '',
-    lastName: profesional?.apellidoMaterno || '',
-    secondLastName: profesional?.nombre.split(' ')[1] || '',
+    secondName: profesional?.nombre.split(' ')[1] || '',
+    lastName: profesional?.apellidoPaterno || '',
+    secondLastName: profesional?.apellidoMaterno || '',
     phone: '',
     idSpecialty: 0,
     dateOfBirth: profesional ? new Date().toISOString().split('T')[0] : '',
@@ -487,7 +487,7 @@ export default function PsychologistRegistrationPage() {
               Registro de Psicólogo
             </h1>
             <p className="text-gray-600 text-sm">
-              Paso {currentStep} de 2: {currentStep === 1 ? 'Información personal' : 'Información profesional'}
+              Paso {currentStep} de 2: {currentStep === 1 ? 'Información Personal y Contacto.' : 'Dirección e Información Profesional.'}
             </p>
           </div>
 

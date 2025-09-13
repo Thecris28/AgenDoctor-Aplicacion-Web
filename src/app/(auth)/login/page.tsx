@@ -88,10 +88,12 @@ export default function LoginPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            {/* Email field */}
+          <form onSubmit={handleLoginSubmit}>
+            <div className="space-y-4">
+
+            {/* Email */}
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="text-sm font-medium mb-2 text-gray-700 block">
                 Correo electrónico
               </label>
               <div className="relative">
@@ -102,7 +104,7 @@ export default function LoginPage() {
                   name="email"
                   value={formLoginData.email}
                   onChange={handleLoginChange}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="tu@email.com"
                   required
                 />
@@ -111,7 +113,7 @@ export default function LoginPage() {
 
             {/* Password field */}
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="text-sm font-medium text-gray-700 block">
                 Contraseña
               </label>
               <div className="relative">
@@ -122,7 +124,7 @@ export default function LoginPage() {
                   name="password"
                   value={formLoginData.password}
                   onChange={handleLoginChange}
-                  className="w-full pl-11 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  className="w-full pl-11 pr-12 py-3 border border-gray-200 focus:outline-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="••••••••"
                   required
                 />
@@ -135,6 +137,7 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+            
 
             {/* Forgot Password */}
             <div className="text-right">
@@ -154,6 +157,7 @@ export default function LoginPage() {
             >
               {isLoading ? 'Procesando...' : 'Iniciar sesión'}
             </button>
+            </div>
           </form>
 
           {/* Switch to register */}

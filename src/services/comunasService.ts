@@ -1,3 +1,4 @@
+
 type Comuna = {
     IdComuna: number;
     NombreComuna: string;
@@ -10,7 +11,7 @@ type responseComunas = {
     count: number;
 }
 
-export async function getComunas() {
+export async function getComunas(): Promise<responseComunas> {
 
     const API_URL = 'http://localhost:3000';
 
@@ -23,7 +24,11 @@ export async function getComunas() {
     if (!response.ok) {
         throw new Error('Error al obtener comunas');
     }
-    const data: responseComunas = await response.json();
-    
-    return data.data;
+    const data = await response.json();
+
+    return {
+        success: data.success,
+        data: data.data as Comuna[],
+        count: data.count
+    };
 }
