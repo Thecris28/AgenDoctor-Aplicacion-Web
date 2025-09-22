@@ -1,5 +1,5 @@
 export interface Especialidad {
-  id: string;
+  id: number;
   nombre: string;
   descripcion: string;
   icono: string;
@@ -32,4 +32,14 @@ export interface Cita {
   hora: string;
   especialidad: string;
   estado: 'confirmada' | 'pendiente' | 'cancelada';
+}
+
+export interface Psicologo {
+  IdPsicologo:        number;
+  Nombre:             string;
+  NombreEspecialidad: string;
+  CorreoElectronico:  string;
+  ValorSesion:        string;
+  Descripcion:        string;
+  IdEspecialidad:     number;
 }

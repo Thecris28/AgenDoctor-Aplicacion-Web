@@ -1,9 +1,9 @@
 import React from 'react';
 import { Calendar, Clock, User, CheckCircle } from 'lucide-react';
-import { Profesional } from '@/interfaces/agendamiento';
+import { Profesional, Psicologo } from '@/interfaces/agendamiento';
 
 interface Props {
-  profesional: Profesional;
+  profesional: Psicologo;
   fecha: Date;
   hora: string;
   paciente: {
@@ -49,8 +49,8 @@ const AppointmentSummary: React.FC<Props> = ({
           <div className="flex items-center space-x-3">
             <User className="w-5 h-5 text-blue-600" />
             <div>
-              <p className="font-medium text-gray-900">{profesional.nombre}</p>
-              <p className="text-sm text-gray-600">{profesional.titulo}</p>
+              <p className="font-medium text-gray-900">{profesional.Nombre}</p>
+              <p className="text-sm text-gray-600">{profesional.NombreEspecialidad}</p>
             </div>
           </div>
 

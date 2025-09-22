@@ -22,7 +22,7 @@ const iconMap = {
   stethoscope: Stethoscope,
   heart: Heart,
   user: User,
-  baby: Baby,
+  child: Baby,
   'user-check': UserCheck,
   bone: Bone,
   brain: Brain,

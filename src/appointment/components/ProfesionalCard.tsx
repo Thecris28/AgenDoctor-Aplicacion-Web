@@ -1,9 +1,9 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
-import { Profesional } from '@/interfaces/agendamiento';
+import { Psicologo } from '@/interfaces/agendamiento';
 
 interface Props {
-  profesional: Profesional;
+  profesional: Psicologo;
   onClick: () => void;
 }
 
@@ -16,19 +16,19 @@ const ProfesionalCard = ({ profesional, onClick }: Props) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <img 
-            src={profesional.avatar} 
-            alt={profesional.nombre}
+            src={ '/default-avatar.png'} 
+            alt={profesional.Nombre}
             className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 group-hover:border-blue-300 transition-colors"
           />
           <div>
             <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-              {profesional.nombre}
+              {profesional.Nombre}
             </h3>
             <p className="text-sm text-blue-600 font-medium">
-              {profesional.titulo}
+              {profesional.NombreEspecialidad}
             </p>
             <p className="text-sm text-gray-500 mt-1">
-              {profesional.experiencia}
+              {profesional.Descripcion || 'Descripción no disponible'}
             </p>
           </div>
         </div>

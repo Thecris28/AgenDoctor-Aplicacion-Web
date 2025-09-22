@@ -32,28 +32,32 @@ export interface BaseRegistration {
   password: string;
   confirmPassword: string;
   name: string;
-  secondName?: string;
+  secondName: string;
   lastName: string;
   secondLastName: string;
   phone: string;
+  rut: string;
 }
 
 export interface PatientRegistration extends BaseRegistration {
   birthdate: string;
-  gender: string;
+  gender?: string;
   medicalHistory?: string;
+  address: string;
+  idcomuna: number;
+  numberAddress?: string;
+  IdTipoUsuario: number;
 }
 
 export interface PsychologistRegistration extends BaseRegistration {
   idSpecialty: number;
-  rut: string;
   dateOfBirth: string;
   yearsOfExperience?: number;
   education?: string;
   biography?: string;
   sessionPrice: number;
   IdTipoUsuario: number;
-  address?: string;
+  address: string;
   numberAddress?: string;
   Idcomuna: number;
 }
@@ -80,3 +84,19 @@ export interface Profesional {
   observaciones:   string;
   antecedentes:    any[];
 }
+export interface RegisterPatient {
+  Calle:             string;
+  Numero:            number;
+  IdComuna:          number;
+  PrimerNombre:      string;
+  SegundoNombre:     string;
+  ApellidoPaterno:   string;
+  ApellidoMaterno:   string;
+  Telefono:          string;
+  FechaNacimiento:   string;
+  CorreoElectronico: string;
+  Contrasena:        string;
+  IdTipoUsuario:     number;
+  Rut:               string;
+}
+

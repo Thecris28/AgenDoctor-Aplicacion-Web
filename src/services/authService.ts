@@ -1,7 +1,7 @@
 
 // Aquí están centralizadas las funciones para login y registro
 
-import { PatientRegistration, PsychologistRegistration, ResponseProfesional, User } from "@/interfaces/auth";
+import { PatientRegistration, PsychologistRegistration, RegisterPatient, ResponseProfesional, User } from "@/interfaces/auth";
 
 const API_URL = 'http://localhost:3000/usuarios/login/';
 
@@ -20,7 +20,10 @@ export async function getLogin(email: string, password: string) {
     if (!response.ok) {
       throw new Error(data.message);
     }
-    return data as User[];
+    return {
+      data: data as User[],
+      Success: true
+    };
 }
 
 const API_REGISTER_URL = 'http://localhost:3000/usuarios/registro_psicologo';
@@ -46,19 +49,22 @@ export async function registerPsychologist(psychologistData:any) {
 
 }
 
-export async function registerPatient(patientData: PatientRegistration) {
-  const response = await fetch('https://tu-api.com/register', {
+export async function registerPatient(patientData: RegisterPatient) {
+  const response = await fetch('http://localhost:3000/usuarios/insertar_paciente', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(patientData),
   });
+  const data = await response.json();
+  console.log('Respuesta del registro:', data.message);
+
   if (!response.ok) {
-    throw new Error('Error en registro');
+    throw new Error(data.message);
   }
-  console.log('Respuesta del registro:', response);
-  return response.json();
+
+  return data;
 }
 
 export async function verifyPsychologistRut(rut: string) {

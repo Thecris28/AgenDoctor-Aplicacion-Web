@@ -2,12 +2,43 @@ import { Especialidad, Profesional } from '../interfaces/agendamiento';
 
 export const especialidades: Especialidad[] = [
   {
-    id: '1',
+    id: 1,
+    nombre: 'Psicología Clínica',
+    descripcion: 'Atención psicológica para adultos y adolescentes',
+    icono: 'brain'
+  },
+  {
+    id: 2,
+    nombre: 'Psicología Infantil',
+    descripcion: 'Evaluación y tratamiento psicológico para niños',
+    icono: 'child'
+  },
+  {
+    id: 3,
+    nombre: 'Terapia Familiar',
+    descripcion: 'Intervenciones terapéuticas para familias',
+    icono: 'users'
+  },
+  {
+    id: 4,
+    nombre: 'Neuropsicología',
+    descripcion: 'Evaluación y tratamiento de trastornos neurológicos',
+    icono: 'cpu'
+  },
+  {
+    id: 5,
     nombre: 'Medicina General',
     descripcion: 'Consultas médicas generales, chequeos preventivos y atención primaria',
     icono: 'stethoscope'
   },
-//   {
+  // {
+  //   id: 6,
+  //   nombre: 'Psicología',
+  //   descripcion: 'Evaluación y tratamiento de problemas emocionales y de salud mental',
+  //   icono: 'brain'
+  // },
+];
+
 //     id: '2',
 //     nombre: 'Cardiología',
 //     descripcion: 'Especialista en enfermedades del corazón y sistema cardiovascular',
@@ -31,12 +62,6 @@ export const especialidades: Especialidad[] = [
 //     descripcion: 'Salud reproductiva femenina y atención ginecológica integral',
 //     icono: 'user-check'
 //   },
-  {
-    id: '6',
-    nombre: 'Psicología',
-    descripcion: 'Evaluación y tratamiento de problemas emocionales y de salud mental',
-    icono: 'brain'
-  },
 //   {
 //     id: '7',
 //     nombre: 'Traumatología',
@@ -49,7 +74,6 @@ export const especialidades: Especialidad[] = [
 //     descripcion: 'Cuidado integral de la salud visual y enfermedades oculares',
 //     icono: 'eye'
 //   }
-];
 
 export const profesionales: Profesional[] = [
   // Medicina General

@@ -5,7 +5,7 @@ import React from 'react';
 interface Props {
   selectedTime: string | null;
   onTimeSelect: (time: string) => void;
-  profesionalId: string;
+  profesionalId: number;
   fecha: Date;
 }
 
