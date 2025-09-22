@@ -6,16 +6,20 @@ import { getLogin } from '@/services/authService';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LoginCredentials } from '@/interfaces/auth';
+import { useAuth } from '@/hooks/useAuth';
+
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [loginError, setLoginError] = useState('');
+
+    const {loginUser} = useAuth()
     
     const [formLoginData, setFormLoginData] = useState<LoginCredentials>({
-      email: '',
-      password: '',
+      email: 'maria.ramirez@example.com',
+      password: 'segura456'
     });
 
     const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,16 +34,22 @@ export default function LoginPage() {
       e.preventDefault();
       setIsLoading(true);
       setLoginError('');
+
+      
       
       try {
-        const data = await getLogin(formLoginData.email, formLoginData.password);
-        console.log('Login successful:', data);
-        if (data[0].TipoUsuarioId === 1) { // Probando SSH
-          console.log('Login successful:', data);
+        const result = await loginUser(formLoginData.email, formLoginData.password);
+        console.log('Login successful:', result);
+        if ( result?.TipoUsuarioId=== 1) { // Probando SSH
+          console.log('Login successful:', result);
           router.push('/appointment');
         }
-        if (data[0].TipoUsuarioId === 2) { 
-          console.log('Login successful:', data);
+        if (result?.TipoUsuarioId === 2) {
+          console.log('Login successful:', result);
+          router.push('/dashboard/inicio');
+        }
+        if (result?.TipoUsuarioId === 3) {
+          console.log('Login successful:', result);
           router.push('/dashboard');
         }
       } catch (error: any) {
@@ -143,7 +153,8 @@ export default function LoginPage() {
             <div className="text-right">
               <button
                 type="button"
-                className="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200"
+                onClick={() => router.push('/recovery')}
+                className="text-sm text-blue-600 hover:text-blue-500 cursor-pointer transition-colors duration-200"
               >
                 ¿Olvidaste tu contraseña?
               </button>

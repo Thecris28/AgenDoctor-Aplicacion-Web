@@ -16,7 +16,7 @@ export default function RegisterRoleSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="bg-white flex items-center justify-center p-4 mt-25">
       <div className="w-full max-w-md">
         <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-8">
           {/* Header */}

@@ -1,9 +1,10 @@
+import Banner from "@/components/ui/Banner";
 
 
 export default function RegisterLayout({children}: {children: React.ReactNode}) {
   return (
     <div>
-        <h1>Registro</h1>
+        <Banner />
         {children}
     </div>
   )
