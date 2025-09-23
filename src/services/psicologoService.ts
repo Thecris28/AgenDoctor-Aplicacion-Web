@@ -1,3 +1,4 @@
+import { Horas } from "@/interfaces/agendamiento";
 
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -16,5 +17,22 @@ export async function getAllPsychologists() {
   const data = await response.json();
 
   return data;
+}
+
+export async function getTimeSlots(psicologoId: number, date: string) {
+  const response = await fetch(`${API_URL}/psicologos/horas_psicologo/?IdPsicologo=${psicologoId}&FechaCita=${date}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Error fetching time slots');
+  }
+
+  const data = await response.json();
+
+  return data as Horas[];
 }
 

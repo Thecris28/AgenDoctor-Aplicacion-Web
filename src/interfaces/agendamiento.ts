@@ -43,3 +43,8 @@ export interface Psicologo {
   Descripcion:        string;
   IdEspecialidad:     number;
 }
+
+export interface Horas {
+  IdCita:   number;
+  HoraCita: string;
+}

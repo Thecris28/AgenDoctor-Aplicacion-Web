@@ -1,7 +1,7 @@
 
 import { useAuthStore } from '@/store/auth.store'
 import { getLogin } from '@/services/authService'
-import { User } from '@/interfaces/auth'
+
 
 const getRoleFromTipoUsuario = (tipoUsuarioId: number): 'psychologist' | 'patient' | 'admin' => {
     switch (tipoUsuarioId) {

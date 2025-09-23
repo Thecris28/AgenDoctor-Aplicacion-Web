@@ -3,9 +3,12 @@ import React from 'react'
 
 export default function AppointmentLayout({children}: {children: React.ReactNode}) {
   return (
-    <div>
+    <div className='bg-gray-50 h-screen'>
+      
         <Sidebar />
-      {children}
+      <div className='md:ml-64'>
+        {children}
+      </div>
     </div>
   )
 }

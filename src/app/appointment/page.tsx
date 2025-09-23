@@ -7,10 +7,11 @@ import ProgresSteps from '@/appointment/components/ProgresStep';
 import TimeSlots from '@/appointment/components/TimeSlots';
 import Calendar from '@/components/Calendar'
 import EspecialidadCard from '@/components/EspecialidadCard';
-import { especialidades, profesionales } from '@/data/mockData';
-import { Especialidad, Profesional } from '@/interfaces/agendamiento';
+import { especialidades } from '@/data/mockData';
+import { Especialidad, Horas, Psicologo } from '@/interfaces/agendamiento';
+import { getAllPsychologists } from '@/services/psicologoService';
 import { ArrowLeft, Calendar1, Clock } from 'lucide-react';
-import React, { useState }  from 'react'
+import React, { useEffect, useState }  from 'react'
 
 type Step = 'especialidad' | 'profesional' | 'fecha-hora' | 'datos' | 'confirmacion';
 
@@ -18,11 +19,26 @@ export default function AppointmentPage() {
     
   const [currentStep, setCurrentStep] = useState<Step>('especialidad');
   const [selectedEspecialidad, setSelectedEspecialidad] = useState<Especialidad | null>(null);
-  const [selectedProfesional, setSelectedProfesional] = useState<Profesional | null>(null);
+  const [selectedProfesional, setSelectedProfesional] = useState<Psicologo | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<Horas | null>(null);
   const [patientData, setPatientData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [profesionales, setProfesionales] = useState<Psicologo[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const psicologos = await getAllPsychologists();
+        setProfesionales(psicologos);
+        console.log(psicologos);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const getStepNumber = (step: Step): number => {
     const stepMap = {
@@ -41,13 +57,16 @@ export default function AppointmentPage() {
     setCurrentStep('profesional');
   };
 
-  const handleProfesionalSelect = (profesional: Profesional) => {
+  const handleProfesionalSelect = (profesional: Psicologo) => {
     setSelectedProfesional(profesional);
     setCurrentStep('fecha-hora');
   };
 
   const handleDateTimeComplete = () => {
     if (selectedDate && selectedTime) {
+      
+      console.log('Profesional seleccionado:', selectedProfesional);
+      console.log('id hora seleccionada:', selectedTime.IdCita);
       setCurrentStep('datos');
     }
   };
@@ -91,7 +110,7 @@ export default function AppointmentPage() {
   const canGoBack = currentStep !== 'especialidad' && currentStep !== 'confirmacion';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex flex-col justify-center items-center w-full bg-gray-50">
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ProgresSteps currentStep={getStepNumber(currentStep)} />
@@ -136,10 +155,10 @@ export default function AppointmentPage() {
             </p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {profesionales
-                .filter(prof => prof.especialidad === selectedEspecialidad.id)
+                .filter(prof => prof.IdEspecialidad === selectedEspecialidad.id)
                 .map((profesional) => (
                   <ProfesionalCard
-                    key={profesional.id}
+                    key={profesional.IdPsicologo}
                     profesional={profesional}
                     onClick={() => handleProfesionalSelect(profesional)}
                   />
@@ -154,7 +173,7 @@ export default function AppointmentPage() {
               Fecha y Hora
             </h2>
             <p className="text-gray-600 mb-8">
-              Consulta con {selectedProfesional.nombre}
+              Consulta con {selectedProfesional.Nombre}
             </p>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -165,9 +184,9 @@ export default function AppointmentPage() {
               
               {selectedDate && (
                 <TimeSlots
-                  selectedTime={selectedTime}
+                  selectedTime={selectedTime?.HoraCita || null}
                   onTimeSelect={setSelectedTime}
-                  profesionalId={selectedProfesional.id}
+                  profesionalId={selectedProfesional.IdPsicologo}
                   fecha={selectedDate}
                 />
               )}
@@ -201,13 +220,13 @@ export default function AppointmentPage() {
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center space-x-3">
                     <img 
-                      src={selectedProfesional!.avatar} 
-                      alt={selectedProfesional!.nombre}
+                      src={'/default-avatar.png'} 
+                      alt={selectedProfesional!.Nombre}
                       className="w-8 h-8 rounded-full object-cover"
                     />
                     <div>
-                      <p className="font-medium text-gray-900">{selectedProfesional!.nombre}</p>
-                      <p className="text-gray-600">{selectedProfesional!.titulo}</p>
+                      <p className="font-medium text-gray-900">{selectedProfesional!.Nombre}</p>
+                      <p className="text-gray-600">{selectedProfesional!.NombreEspecialidad}</p>
                     </div>
                   </div>
                   
@@ -227,7 +246,7 @@ export default function AppointmentPage() {
                   
                   <div className="flex items-center space-x-3">
                     <Clock className="w-4 h-4 text-blue-600" />
-                    <p className="text-gray-700">{selectedTime}</p>
+                    <p className="text-gray-700">{selectedTime?.HoraCita}</p>
                   </div>
                 </div>
               </div>
@@ -244,7 +263,7 @@ export default function AppointmentPage() {
           <AppointmentSummary
             profesional={selectedProfesional}
             fecha={selectedDate}
-            hora={selectedTime}
+            hora={selectedTime.HoraCita}
             paciente={patientData}
             onNewAppointment={handleNewAppointment}
           />

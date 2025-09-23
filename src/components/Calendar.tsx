@@ -31,7 +31,11 @@ const Calendar = ({ selectedDate, onDateSelect }: Props) => {
 
   const handleDateClick = (day: number) => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    if (date >= today) {
+    // Permitir seleccionar el día actual comparando solo la fecha sin la hora
+    const dateWithoutTime = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    if (dateWithoutTime >= todayWithoutTime) {
       onDateSelect(date);
     }
   };
@@ -45,7 +49,13 @@ const Calendar = ({ selectedDate, onDateSelect }: Props) => {
 
   const isDateDisabled = (day: number) => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    return date <  today || date.getDay() === 0; // Disable past dates and Sundays
+    
+    // Comparar solo la fecha (sin la hora) para permitir el día actual
+    const dateWithoutTime = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    // Deshabilitar fechas anteriores a hoy (pero no hoy mismo) y domingos
+    return dateWithoutTime < todayWithoutTime || date.getDay() === 0; 
   };
 
   return (

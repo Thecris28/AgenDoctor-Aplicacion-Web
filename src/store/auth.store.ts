@@ -17,6 +17,7 @@ interface AuthStore {
   isAuthenticated: boolean
   
   // Actions
+  
   setUser: (user: User) => void
   clearUser: () => void
   updateUser: (userData: Partial<User>) => void
