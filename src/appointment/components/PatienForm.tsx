@@ -1,6 +1,9 @@
 'use client'
 import React, { useState } from 'react';
-import { User, Mail, Phone, CreditCard } from 'lucide-react';
+import { User, Mail, Phone, CreditCard, Loader } from 'lucide-react';
+import { createTransaction } from '@/services/paymentService';
+import { Horas, Psicologo } from '@/interfaces/agendamiento';
+import { useAuthStore } from '@/store/auth.store';
 
 interface PatientData {
   nombre: string;
@@ -12,10 +15,14 @@ interface PatientData {
 interface Props {
   onSubmit: (data: PatientData) => void;
   loading?: boolean;
+  citaInfo: Horas | null;
+  psicologo: Psicologo | null;
+  fecha: Date;
 }
 
-const PatientForm = ({ onSubmit, loading = false }: Props) => {
-
+const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: Props) => {
+  const { user } = useAuthStore();
+  
   const [formData, setFormData] = useState<PatientData>({
     nombre: '',
     email: '',
@@ -23,7 +30,17 @@ const PatientForm = ({ onSubmit, loading = false }: Props) => {
     rut: ''
   });
 
+  const formatearFecha = (fecha: Date): string => {
+    if (!fecha) return '';
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const anio = fecha.getFullYear();
+    return `${dia}-${mes}-${anio}`;
+  };
+
+
   const [errors, setErrors] = useState<Partial<PatientData>>({});
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors: Partial<PatientData> = {};
@@ -50,10 +67,48 @@ const PatientForm = ({ onSubmit, loading = false }: Props) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      onSubmit(formData);
+    if (!validateForm()) return;
+    
+    // Primero enviar los datos del paciente
+    onSubmit(formData);
+    const precioConsulta = psicologo ? parseInt(psicologo.ValorSesion) : 30000;
+    // Si tenemos información de la cita, iniciar proceso de pago
+    if (citaInfo && precioConsulta > 0) {
+      try {
+        setPaymentLoading(true);
+        
+        // Crear la transacción de pago
+        const paymentData = await createTransaction({
+          buy_order: `${citaInfo.IdCita}${Date.now()}`,
+          session_id: `${formData.rut.replace(/\D/g, '')}_${Date.now()}`,
+          amount: precioConsulta,
+          return_url: `${window.location.origin}/commitpay`
+        });
+
+        if (!paymentData || !paymentData.url) {
+          throw new Error("No se recibió la URL de pago");
+        }
+
+        if (paymentData.token && paymentData.url) {
+          // Redirect to Transbank payment URL
+          localStorage.setItem('idCita', JSON.stringify(citaInfo.IdCita));
+          // localStorage.setItem('idPaciente', JSON.stringify(formData.rut));
+          localStorage.setItem('correo', JSON.stringify(formData.email));
+          localStorage.setItem('nombrePsicologo', JSON.stringify(psicologo?.Nombre));
+          localStorage.setItem('fechaCita', JSON.stringify(formatearFecha(fecha)));
+          localStorage.setItem('horaCita', JSON.stringify(citaInfo?.HoraCita));
+          localStorage.setItem('idPersona', JSON.stringify(user?.idPersona));
+          localStorage.setItem('idUsuario', JSON.stringify(user?.idUsuario));
+          window.location.href = paymentData.url + '?token_ws=' + paymentData.token;
+        }
+        
+      } catch (error) {
+        console.error("Error iniciando pago:", error);
+        alert("No se pudo iniciar el proceso de pago. Intente nuevamente.");
+        setPaymentLoading(false);
+      }
     }
   };
 
@@ -63,6 +118,9 @@ const PatientForm = ({ onSubmit, loading = false }: Props) => {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
+
+  // Precio estándar de consulta si no se especifica
+  const precioConsulta = psicologo ? parseInt(psicologo.ValorSesion) : 30000;
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -155,12 +213,29 @@ const PatientForm = ({ onSubmit, loading = false }: Props) => {
           )}
         </div>
 
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h4 className="font-medium text-blue-800 mb-1">Información de pago</h4>
+          <p className="text-sm text-blue-600">
+            Al confirmar, serás redirigido a WebPay para realizar el pago de tu consulta:
+          </p>
+          <p className="text-lg font-semibold text-blue-800 mt-2">
+            ${precioConsulta.toLocaleString('es-CL')}
+          </p>
+        </div>
+
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading || paymentLoading}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
-          {loading ? 'Procesando...' : 'Confirmar Cita'}
+          {loading || paymentLoading ? (
+            <>
+              <Loader className="w-4 h-4 animate-spin mr-2" />
+              {paymentLoading ? 'Iniciando pago...' : 'Procesando...'}
+            </>
+          ) : (
+            'Confirmar y Pagar'
+          )}
         </button>
       </form>
     </div>

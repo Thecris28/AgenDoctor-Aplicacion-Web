@@ -7,6 +7,13 @@ interface Props {
   onClick: () => void;
 }
 
+export function formatCurrency (quantity: number) {
+    return new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP'
+    }).format(quantity)
+}
+
 const ProfesionalCard = ({ profesional, onClick }: Props) => {
   return (
     <div 
@@ -29,6 +36,9 @@ const ProfesionalCard = ({ profesional, onClick }: Props) => {
             </p>
             <p className="text-sm text-gray-500 mt-1">
               {profesional.Descripcion || 'Descripción no disponible'}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              <span>Valor de la sesión: </span>{formatCurrency(+profesional.ValorSesion) || 'Descripción no disponible'}
             </p>
           </div>
         </div>

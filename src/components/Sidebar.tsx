@@ -45,13 +45,13 @@ export default function Sidebar() {
   
   // Menú para pacientes
   const patientMenu = [
-    { id: 'inicio', label: 'Inicio', icon: Home, href: '/dashboard/inicio' },
+    // { id: 'inicio', label: 'Inicio', icon: Home, href: '/dashboard/inicio' },
     { id: 'agendamiento', label: 'Agendar Cita', icon: Calendar, href: '/appointment' },
     { id: 'mis-citas', label: 'Mis Citas', icon: Clock, href: '/appointment/misCitas' },
-    { id: 'profesionales', label: 'Profesionales', icon: HeartPulse, href: '/dashboard/profesionales' },
-    { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, href: '/dashboard/mensajes' },
-    { id: 'perfil', label: 'Mi Perfil', icon: User, href: '/dashboard/perfil' },
-    { id: 'configuracion', label: 'Configuración', icon: Settings, href: '/dashboard/configuracion' },
+    { id: 'profesionales', label: 'Profesionales', icon: HeartPulse, href: '/appointment/profesionales' },
+    { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, href: '/appointment/mensajes' },
+    { id: 'perfil', label: 'Mi Perfil', icon: User, href: '/appointment/perfil' },
+    { id: 'configuracion', label: 'Configuración', icon: Settings, href: '/appointment/configuracion' },
   ];
   
   // Menú para administradores

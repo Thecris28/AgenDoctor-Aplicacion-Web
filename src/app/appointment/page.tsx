@@ -1,4 +1,3 @@
-
 'use client'
 import AppointmentSummary from '@/appointment/components/AppointmentSummary';
 import PatientForm from '@/appointment/components/PatienForm';
@@ -74,12 +73,29 @@ export default function AppointmentPage() {
   const handlePatientSubmit = async (data: any) => {
     setLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setPatientData(data);
-    setLoading(false);
-    setCurrentStep('confirmacion');
+    try {
+      // Aquí podrías llamar a tu API para crear la cita
+      // const response = await createCita({
+      //   pacienteData: data,
+      //   profesionalId: selectedProfesional?.IdPsicologo,
+      //   fecha: selectedDate,
+      //   horaId: selectedTime?.IdCita
+      // });
+      
+      // Simulamos la respuesta
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Guardamos los datos del paciente
+      setPatientData(data);
+      
+      // No avanzamos automáticamente a confirmación porque WebPay se encargará de redirigir
+      
+    } catch (error) {
+      console.error('Error al crear la cita:', error);
+      alert('No se pudo crear la cita. Por favor, intenta nuevamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNewAppointment = () => {
@@ -252,8 +268,11 @@ export default function AppointmentPage() {
               </div>
 
               <PatientForm
+                psicologo={selectedProfesional}
                 onSubmit={handlePatientSubmit}
                 loading={loading}
+                citaInfo={selectedTime}
+                fecha={selectedDate!}
               />
             </div>
           </div>
