@@ -74,22 +74,13 @@ export default function AppointmentPage() {
     setLoading(true);
     
     try {
-      // Aquí podrías llamar a tu API para crear la cita
-      // const response = await createCita({
-      //   pacienteData: data,
-      //   profesionalId: selectedProfesional?.IdPsicologo,
-      //   fecha: selectedDate,
-      //   horaId: selectedTime?.IdCita
-      // });
+      // aqui se llama a la api para crear la cita
+      console.log('Datos del paciente recibidos:', data);
+
+      // Falta implementar el endpoint para crear la cita
       
-      // Simulamos la respuesta
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Guardamos los datos del paciente
       setPatientData(data);
-      
-      // No avanzamos automáticamente a confirmación porque WebPay se encargará de redirigir
-      
     } catch (error) {
       console.error('Error al crear la cita:', error);
       alert('No se pudo crear la cita. Por favor, intenta nuevamente.');

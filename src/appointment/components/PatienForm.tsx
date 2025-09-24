@@ -92,8 +92,8 @@ const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: 
         }
 
         if (paymentData.token && paymentData.url) {
-          // Redirect to Transbank payment URL
           localStorage.setItem('idCita', JSON.stringify(citaInfo.IdCita));
+          // falta llamar la api para obtener paciente id
           // localStorage.setItem('idPaciente', JSON.stringify(formData.rut));
           localStorage.setItem('correo', JSON.stringify(formData.email));
           localStorage.setItem('nombrePsicologo', JSON.stringify(psicologo?.Nombre));
@@ -119,7 +119,6 @@ const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: 
     }
   };
 
-  // Precio estándar de consulta si no se especifica
   const precioConsulta = psicologo ? parseInt(psicologo.ValorSesion) : 30000;
 
   return (

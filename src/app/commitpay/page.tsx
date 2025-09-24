@@ -9,7 +9,8 @@ export default function CommitPayPage() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [message, setMessage] = useState('Procesando resultado del pago...');
   const [transactionDetails, setTransactionDetails] = useState<any>(null);
-  
+
+  // Los datos vienen desde el componente patientForm y se guardan en localStorage
   const searchParams = useSearchParams();
   
   // WebPay envía el token como token_ws en la URL
@@ -59,7 +60,7 @@ export default function CommitPayPage() {
           setStatus('success');
           setMessage('¡El pago ha sido procesado exitosamente!');
           
-          // Aquí podrías hacer un llamado a tu API para confirmar la cita
+          // Aca hacer un llamado a la API para confirmar la cita y pago
           // await confirmarCita(citaId, token_ws);
         } else {
           setStatus('error');

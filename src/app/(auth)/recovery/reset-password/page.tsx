@@ -36,6 +36,7 @@ export default function ResetPasswordPage() {
 
     try {
       // await resetPassword(email, password)
+      // Aca se conecta el backend para cambiar la contraseña
       setTimeout(() => {
         setSuccess(true)
         setIsSubmitting(false)
