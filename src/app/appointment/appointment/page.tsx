@@ -180,7 +180,7 @@ export default function AppointmentPage() {
               Fecha y Hora
             </h2>
             <p className="text-gray-600 mb-8">
-              Consulta con {selectedProfesional.Nombre}
+              Consulta con {selectedProfesional.NombreCompleto}
             </p>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -228,11 +228,11 @@ export default function AppointmentPage() {
                   <div className="flex items-center space-x-3">
                     <img 
                       src={'/default-avatar.png'} 
-                      alt={selectedProfesional!.Nombre}
+                      alt={selectedProfesional!.NombreCompleto}
                       className="w-8 h-8 rounded-full object-cover"
                     />
                     <div>
-                      <p className="font-medium text-gray-900">{selectedProfesional!.Nombre}</p>
+                      <p className="font-medium text-gray-900">{selectedProfesional!.NombreCompleto}</p>
                       <p className="text-gray-600">{selectedProfesional!.NombreEspecialidad}</p>
                     </div>
                   </div>

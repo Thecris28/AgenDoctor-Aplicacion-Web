@@ -10,7 +10,7 @@ export default function Banner() {
         <div className="flex items-center">
           <div className="flex items-center space-x-2">
             <div className="relative">
-              <Image src="/logo.png" alt="Logo" width={50} height={50} />
+              <Image src="/logo5.svg" alt="Logo" width={58} height={58} />
             </div>
             <div className="text-center">
               <div className="flex items-baseline">

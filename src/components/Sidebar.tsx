@@ -46,7 +46,7 @@ export default function Sidebar() {
   // Menú para pacientes
   const patientMenu = [
     // { id: 'inicio', label: 'Inicio', icon: Home, href: '/dashboard/inicio' },
-    { id: 'agendamiento', label: 'Agendar Cita', icon: Calendar, href: '/appointment' },
+    { id: 'agendamiento', label: 'Agendar Cita', icon: Calendar, href: '/appointment/appointment' },
     { id: 'mis-citas', label: 'Mis Citas', icon: Clock, href: '/appointment/misCitas' },
     { id: 'profesionales', label: 'Profesionales', icon: HeartPulse, href: '/appointment/profesionales' },
     { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, href: '/appointment/mensajes' },
@@ -92,7 +92,6 @@ export default function Sidebar() {
     router.push('/');
   };
 
-  // Estado para controlar si el sidebar está abierto en móvil
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Función para cerrar el sidebar al hacer clic en un enlace (en móvil)
@@ -188,7 +187,7 @@ export default function Sidebar() {
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id || 
-                               (item.href !== '/dashboard/inicio' && pathname?.includes(item.href));
+                               (item.href && pathname?.includes(item.href));
               
               return (
                 <Link 

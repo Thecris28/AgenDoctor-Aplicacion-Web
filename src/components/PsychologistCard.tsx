@@ -1,24 +1,17 @@
-import React from "react";
+
+
 import {
   MapPin,
   Calendar,
-  Edit,
   Clock,
   Star,
+  Heart,
+  Slice,
 } from "lucide-react";
 import Link from "next/link";
-interface Psicologo {
-  IdPsicologo: number;
-  Nombre: string;
-  Apellido: string;
-  Especialidad: string;
-  ValorSesion: string;
-  Descripcion: string;
-  ImagenUrl: string;
-  Calificacion: number;
-  Ubicacion?: string;
-  HorarioAtencion?: string;
-}
+import { Psicologo } from "@/interfaces/agendamiento";
+import FavoriteButton from "./FavoriteButton";
+
 
 interface PsychologistCardProps {
   name?: string;
@@ -45,6 +38,23 @@ export default function PsychologistCard({
   description = "Como psicólogo clínico con experiencia en TCC, me apasiona ayudar a las personas a desarrollar herramientas efectivas para el manejo del estrés y la mejora del bienestar mental. Entiendo que la terapia va más allá de las técnicas y debe estar arraigada en las necesidades individuales de cada paciente.",
   profileImage,
 }: PsychologistCardProps) {
+
+
+
+  const numberRamdon = Math.floor(Math.random() * 11);
+
+  const rating = Math.floor(Math.random() * 5) + 1;
+
+  const horarioAtencion = "Lunes a Viernes, 9:00 - 18:00";
+
+  const searchImage = (id : number) => {
+    return `https://randomuser.me/api/portraits/women/${id}.jpg`;
+  }
+
+  const sliceName = (name:string) => {
+    return name.split(" ")[0] + " " + name.split(" ")[2] + " " + name.split(" ")[3];
+  };
+
   const renderStar = (rating: number) => {
     const star = [];
     for (let i = 1; i <= 5; i++) {
@@ -54,8 +64,7 @@ export default function PsychologistCard({
           size={16}
           fill={i <= rating ? "#fbbf24" : "none"}
           stroke={i <= rating ? "#fbbf24" : "#d1d5db"}
-          className={`${
-            i <= Math.floor(rating) ? "text-yellow-400" : "text-gray-300"
+          className={`${ i <= Math.floor(rating) ? "text-yellow-400" : "text-gray-300"
           }`}
         />
       );
@@ -86,27 +95,26 @@ export default function PsychologistCard({
         </div>
 
         {/* Edit button */}
-        <button className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
-          <Edit className="w-5 h-5 text-white" />
-        </button>
+        <FavoriteButton />
 
         {/* Profile image */}
         <div className="absolute -bottom-13 left-1/2 transform -translate-x-1/2">
           <div className="w-30 h-30 rounded-full border-4 border-white bg-blue-100 flex items-center justify-center overflow-hidden">
-            {psicologo.ImagenUrl ? (
+            {searchImage ? (
               <img
-                src={psicologo.ImagenUrl}
+                src={searchImage(psicologo.IdPsicologo+4)}
                 alt={name}
                 className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                 <span className="text-white text-3xl font-bold">
-                  {psicologo.Nombre
+                  {psicologo.NombreCompleto
                     .split(" ")
                     .map((n) => n[0])
                     .join("")
                     .slice(0, 2)}
+
                 </span>
               </div>
             )}
@@ -115,32 +123,32 @@ export default function PsychologistCard({
       </div>
 
       {/* Content */}
-      <div className="pt-12 px-6 pb-4">
+      <div className="pt-12 px-4 pb-4">
         {/* Name and title */}
         <div className="mb-3">
           <h1 className="text-gray-900 mt-5 text-2xl font-medium tracking-tight mb-2">
-            {psicologo.Nombre +' ' + psicologo.Apellido}
+            {sliceName(psicologo.NombreCompleto)}
           </h1>
           <p className=" text-blue-500 text-base font-medium tracking-tight">
-            {psicologo.Especialidad}
+            {psicologo.NombreEspecialidad}
           </p>
         </div>
         {/* Description */}
-        <p className="text-sm text-gray-600 mb-4">{psicologo.Descripcion}</p>
+        <p className="text-sm text-gray-600 mb-4">{description}</p>
 
         {/* Contact information */}
         <div className="space-y-2 mb-3">
-          {psicologo.Ubicacion && (
+          {/* {psicologo.Ubicacion && (
             <div className="flex items-center text-sm text-gray-500">
               <MapPin size={16} className="mr-1 flex-shrink-0" />
               <span>{psicologo.Ubicacion}</span>
             </div>
-          )}
+          )} */}
 
-          {psicologo.HorarioAtencion && (
+          {(
             <div className="flex items-center text-sm text-gray-500">
               <Clock size={16} className="mr-1 flex-shrink-0" />
-              <span>{psicologo.HorarioAtencion}</span>
+              <span>{horarioAtencion}</span>
             </div>
           )}
 
@@ -165,9 +173,9 @@ export default function PsychologistCard({
           </div>
           <div className="flex space-x-1 items-center">
             <div className="text-sm text-gray-500 pr-1">
-              {psicologo.Calificacion}
+              {rating}
             </div>
-            {renderStar(psicologo.Calificacion)}
+            {renderStar(rating)}
           </div>
         </div>
       </div>

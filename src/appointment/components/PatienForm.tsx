@@ -96,7 +96,7 @@ const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: 
           // falta llamar la api para obtener paciente id
           // localStorage.setItem('idPaciente', JSON.stringify(formData.rut));
           localStorage.setItem('correo', JSON.stringify(formData.email));
-          localStorage.setItem('nombrePsicologo', JSON.stringify(psicologo?.Nombre));
+          localStorage.setItem('nombrePsicologo', JSON.stringify(psicologo?.NombreCompleto));
           localStorage.setItem('fechaCita', JSON.stringify(formatearFecha(fecha)));
           localStorage.setItem('horaCita', JSON.stringify(citaInfo?.HoraCita));
           localStorage.setItem('idPersona', JSON.stringify(user?.idPersona));
