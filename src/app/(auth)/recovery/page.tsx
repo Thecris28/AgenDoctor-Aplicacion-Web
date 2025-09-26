@@ -1,10 +1,10 @@
 
-
 'use client'
 import { useState } from 'react'
 import { Mail, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { sendEmailRecovery, sendToken } from '@/services/authService'
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState('')
@@ -14,6 +14,7 @@ export default function ForgetPassword() {
 
   const router = useRouter()
 
+
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault()
   setIsSubmitting(true)
@@ -21,12 +22,26 @@ export default function ForgetPassword() {
   setSuccess(false)
 
   try {
-    // await recoveryPassword(email)
-    setTimeout(() => {
+    const Token = Math.floor(100000 + Math.random() * 900000).toString();
+    await sendToken(email, Token)
+    console.log('Generated Token:', Token);
+    console.log('Email for recovery:', email);
+
+     const response = await sendEmailRecovery(email, Token)
+        console.log('Generated Token2:', Token);
+    if (response && response.error) {
+      throw new Error(response.error || 'Error al enviar el correo de recuperación')
+    }
+    console.log('Response from sendEmailRecovery:', response);
+
+    setTimeout(async () => {
+
+    
       setIsSubmitting(false)
-      // Redirigir a la página de verificación de código con el email
+      setSuccess(true)
+
       router.push(`/recovery/verify-code?email=${encodeURIComponent(email)}`)
-    }, 1200)
+    }, 2000)
   } catch (err) {
     setError('No se pudo enviar el correo de recuperación. Intenta nuevamente.')
     setIsSubmitting(false)

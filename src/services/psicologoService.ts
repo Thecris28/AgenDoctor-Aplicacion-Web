@@ -15,6 +15,7 @@ export async function getAllPsychologists() {
   }
 
   const data = await response.json();
+  console.log('Psychologists data:', data);
 
   return data;
 }

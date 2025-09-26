@@ -3,6 +3,7 @@ import { useState, useRef } from 'react'
 import { CheckCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { verifyOtp } from '@/services/authService'
 
 export default function VerifyCodePage() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
@@ -10,9 +11,11 @@ export default function VerifyCodePage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const inputsRef = useRef<Array<HTMLInputElement | null>>([])
-    const router = useRouter()
-const searchParams = useSearchParams()
-const email = searchParams.get('email') || ''
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const email = searchParams.get('email') || '';
+
+
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return // Solo números
     const newOtp = [...otp]
@@ -41,7 +44,15 @@ const email = searchParams.get('email') || ''
     return
   }
   try {
-    // await verifyOtp(email, code)
+    const response = await verifyOtp(email, code)
+    console.log('OTP verificado para:', email);
+    console.log('Código ingresado:', code);
+
+    if (response.message === 'Token válido') {
+      setSuccess(true)
+    } else {
+      throw new Error('El código es incorrecto o expiró.')
+    }
     setTimeout(() => {
       setIsSubmitting(false)
       // Redirigir a la página de cambio de contraseña con el email

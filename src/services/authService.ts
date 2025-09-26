@@ -1,7 +1,7 @@
 
-// Aquí están centralizadas las funciones para login y registro
+// Aquí están centralizadas las funciones para login, registro y recuperacion de contraseñas
 
-import { PatientRegistration, PsychologistRegistration, RegisterPatient, ResponseProfesional, User } from "@/interfaces/auth";
+import { RegisterPatient, ResponseProfesional, User } from "@/interfaces/auth";
 
 const API_URL = 'http://localhost:3000/usuarios/login/';
 
@@ -71,7 +71,6 @@ export async function verifyPsychologistRut(rut: string) {
   try {
     console.log('Iniciando verificación para RUT:', rut);
     
-    // URL de la API de verificación (reemplaza con tu endpoint real)
     const API_VERIFY_URL = 'https://api-superintendencia-salud.onrender.com/api/profesional/buscar';
     
     const response = await fetch(`${API_VERIFY_URL}/${rut}`, {
@@ -137,3 +136,68 @@ export async function verifyPsychologistRut(rut: string) {
     };
   }
 }
+ const API_RESET_URL = 'http://localhost:3000/usuarios/guardarToken';
+export async function sendToken(CorreoElectronico: string, Token:string) {
+  const response = await fetch(API_RESET_URL, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ CorreoElectronico, Token }),
+  });
+  const data = await response.json();
+  console.log('Respuesta del envío de token:', data);
+  return data;
+}
+
+const API_EMAIL_URL = 'http://localhost:3000/api/v1/email/recuperar-contrasena';
+export async function sendEmailRecovery(email: string, token:string) {
+  console.log('Enviando email a:', email, 'con token:', token);
+  const response = await fetch(API_EMAIL_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, token })
+  });
+
+  const data = await response.json()
+  console.log('Respuesta del envío de email:', data);
+  return data;
+}
+
+const API_VERIFY_OTP_URL = 'http://localhost:3000/usuarios/validarToken';
+
+export const verifyOtp = async (email: string, token: string) => {
+  const response = await fetch(API_VERIFY_OTP_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, token }),
+  });
+
+  const data = await response.json();
+  console.log('Respuesta de la verificación de OTP:', data);
+  return data;
+}
+
+const API_NEW_PASSWORD_URL = 'http://localhost:3000/usuarios/cambiar_contrasena';
+export const changePassword = async(email: string, newPassword: string) => {
+  console.log('Cambiando contraseña para:', email);
+  console.log('Nueva contraseña:', newPassword);
+  const response = await fetch(API_NEW_PASSWORD_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      CorreoElectronico:email,
+      NuevaContrasena:newPassword
+    })
+  });
+
+  const data = await response.json()
+  console.log('Respuesta cambio de contraseña', data)
+  return data;
+} 

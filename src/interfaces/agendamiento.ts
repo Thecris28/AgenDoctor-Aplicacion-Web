@@ -36,11 +36,13 @@ export interface Cita {
 
 export interface Psicologo {
   IdPsicologo:        number;
-  Nombre:             string;
+  NombreCompleto:     string;
   NombreEspecialidad: string;
   CorreoElectronico:  string;
   ValorSesion:        string;
   Descripcion:        string;
+  Telefono:           string;
+  Rut:                string;
   IdEspecialidad:     number;
 }
 
@@ -48,3 +50,16 @@ export interface Horas {
   IdCita:   number;
   HoraCita: string;
 }
+
+export interface Psicologo2 {
+  IdPsicologo:        number;
+  NombreCompleto:     string;
+  NombreEspecialidad: string;
+  CorreoElectronico:  string;
+  ValorSesion:        string;
+  Descripcion:        string;
+  Telefono:           string;
+  Rut:                string;
+  IdEspecialidad:     number;
+}
+

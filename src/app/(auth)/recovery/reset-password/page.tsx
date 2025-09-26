@@ -4,6 +4,7 @@ import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle } from 'lucide-react'
+import { changePassword } from '@/services/authService'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -35,8 +36,10 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      // await resetPassword(email, password)
-      // Aca se conecta el backend para cambiar la contraseña
+      const data = await changePassword(email, password);
+      console.log('Password changed for:', email);
+      console.log('New password:', password);
+      console.log('Response from changePassword:', data);
       setTimeout(() => {
         setSuccess(true)
         setIsSubmitting(false)

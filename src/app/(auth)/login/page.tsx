@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import GoogleIcon from '../../../components/ui/GoogleIcon';
-import { getLogin } from '@/services/authService';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LoginCredentials } from '@/interfaces/auth';
@@ -18,8 +17,8 @@ export default function LoginPage() {
     const {loginUser} = useAuth()
     
     const [formLoginData, setFormLoginData] = useState<LoginCredentials>({
-      email: 'maria.ramirez@example.com',
-      password: 'segura456'
+      email: 'javi.m@agendoctor.cl',
+      password: 'alter123'
     });
 
     const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,9 +39,9 @@ export default function LoginPage() {
       try {
         const result = await loginUser(formLoginData.email, formLoginData.password);
         console.log('Login successful:', result);
-        if ( result?.TipoUsuarioId=== 1) { // Probando SSH
+        if ( result?.TipoUsuarioId=== 1) { 
           console.log('Login successful:', result);
-          router.push('/appointment');
+          router.push('/appointment/appo');
         }
         if (result?.TipoUsuarioId === 2) {
           console.log('Login successful:', result);
