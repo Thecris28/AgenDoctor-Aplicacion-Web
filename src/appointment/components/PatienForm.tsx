@@ -1,9 +1,11 @@
 'use client'
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { User, Mail, Phone, CreditCard, Loader } from 'lucide-react';
 import { createTransaction } from '@/services/paymentService';
 import { Horas, Psicologo } from '@/interfaces/agendamiento';
 import { useAuthStore } from '@/store/auth.store';
+import { getPatientData } from '@/services/patientService';
+import { patient } from '@/interfaces/patient';
 
 interface PatientData {
   nombre: string;
@@ -22,13 +24,36 @@ interface Props {
 
 const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: Props) => {
   const { user } = useAuthStore();
+  const [patientData, setPatientData] = useState<patient>();
+  
   
   const [formData, setFormData] = useState<PatientData>({
-    nombre: '',
-    email: '',
-    telefono: '',
-    rut: ''
+    nombre: patientData?.nombre || '',
+    email: patientData?.correo || '',
+    telefono: patientData?.telefono || '',
+    rut: patientData?.rut || ''
   });
+
+  useEffect(() => {
+      const fetchPatientData = async () => {
+        try {
+          
+            const data = await getPatientData(user?.idPersona || 0);
+            setPatientData(data[0]);
+            setFormData({
+              nombre: data?.[0].nombre || '',
+              email: data?.[0].correo || '',
+              telefono: data?.[0].telefono || '',
+              rut: data?.[0].rut || ''
+            });
+            console.log(data)
+          
+        } catch (error) {
+          setPatientData({} as patient);
+        }
+      };
+    fetchPatientData();
+    }, []);
 
   const formatearFecha = (fecha: Date): string => {
     if (!fecha) return '';
@@ -67,6 +92,17 @@ const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: 
     return Object.keys(newErrors).length === 0;
   };
 
+  const generateOrderNumber = () => {
+  // Letras aleatorias
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const prefix =
+    letters[Math.floor(Math.random() * letters.length)] +
+    letters[Math.floor(Math.random() * letters.length)];
+  // Números aleatorios de 6 dígitos
+  const numbers = Math.floor(100000 + Math.random() * 900000);
+  return `${prefix}${numbers}`;
+};
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -74,6 +110,8 @@ const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: 
     // Primero enviar los datos del paciente
     onSubmit(formData);
     const precioConsulta = psicologo ? parseInt(psicologo.ValorSesion) : 30000;
+
+    
     // Si tenemos información de la cita, iniciar proceso de pago
     if (citaInfo && precioConsulta > 0) {
       try {
@@ -81,7 +119,7 @@ const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: 
         
         // Crear la transacción de pago
         const paymentData = await createTransaction({
-          buy_order: `${citaInfo.IdCita}${Date.now()}`,
+          buy_order: generateOrderNumber(),
           session_id: `${formData.rut.replace(/\D/g, '')}_${Date.now()}`,
           amount: precioConsulta,
           return_url: `${window.location.origin}/commitpay`
@@ -93,14 +131,15 @@ const PatientForm = ({ onSubmit, loading = false, citaInfo, psicologo, fecha }: 
 
         if (paymentData.token && paymentData.url) {
           localStorage.setItem('idCita', JSON.stringify(citaInfo.IdCita));
-          // falta llamar la api para obtener paciente id
-          // localStorage.setItem('idPaciente', JSON.stringify(formData.rut));
+          localStorage.setItem('idPaciente', JSON.stringify(patientData?.idPaciente || ''));
           localStorage.setItem('correo', JSON.stringify(formData.email));
           localStorage.setItem('nombrePsicologo', JSON.stringify(psicologo?.NombreCompleto));
           localStorage.setItem('fechaCita', JSON.stringify(formatearFecha(fecha)));
           localStorage.setItem('horaCita', JSON.stringify(citaInfo?.HoraCita));
           localStorage.setItem('idPersona', JSON.stringify(user?.idPersona));
           localStorage.setItem('idUsuario', JSON.stringify(user?.idUsuario));
+          localStorage.setItem('nombrePaciente', JSON.stringify(formData.nombre));
+          localStorage.setItem('especialidad', JSON.stringify(psicologo?.NombreEspecialidad));
           window.location.href = paymentData.url + '?token_ws=' + paymentData.token;
         }
         

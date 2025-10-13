@@ -40,7 +40,7 @@ export default function Sidebar() {
     { id: 'reportes', label: 'Informes', icon: FileText, href: '/dashboard/reportes' },
     { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, href: '/dashboard/mensajes' },
     { id: 'perfil', label: 'Mi Perfil', icon: User, href: '/dashboard/perfil' },
-    { id: 'configuracion', label: 'Configuración', icon: Settings, href: '/dashboard/configuracion' },
+    { id: 'ajustes', label: 'Ajustes', icon: Settings, href: `/dashboard/ajustes?id=${user?.idPsicologo}` },
   ];
   
   // Menú para pacientes
@@ -50,7 +50,6 @@ export default function Sidebar() {
     { id: 'mis-citas', label: 'Mis Citas', icon: Clock, href: '/appointment/misCitas' },
     { id: 'profesionales', label: 'Profesionales', icon: HeartPulse, href: '/appointment/profesionales' },
     { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, href: '/appointment/mensajes' },
-    { id: 'perfil', label: 'Mi Perfil', icon: User, href: '/appointment/perfil' },
     { id: 'configuracion', label: 'Configuración', icon: Settings, href: '/appointment/configuracion' },
   ];
   

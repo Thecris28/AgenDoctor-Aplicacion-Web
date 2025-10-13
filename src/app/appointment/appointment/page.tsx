@@ -8,7 +8,9 @@ import Calendar from '@/components/Calendar'
 import EspecialidadCard from '@/components/EspecialidadCard';
 import { especialidades } from '@/data/mockData';
 import { Especialidad, Horas, Psicologo } from '@/interfaces/agendamiento';
+import { getPatientData } from '@/services/patientService';
 import { getAllPsychologists } from '@/services/psicologoService';
+import { useAuthStore } from '@/store/auth.store';
 import { ArrowLeft, Calendar1, Clock } from 'lucide-react';
 import React, { useEffect, useState }  from 'react'
 

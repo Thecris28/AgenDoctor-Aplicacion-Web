@@ -20,6 +20,7 @@ export async function getComunas(): Promise<responseComunas> {
         headers: {
             'Content-Type': 'application/json',
         },
+        next: { revalidate: 3600 }
     });
     if (!response.ok) {
         throw new Error('Error al obtener comunas');

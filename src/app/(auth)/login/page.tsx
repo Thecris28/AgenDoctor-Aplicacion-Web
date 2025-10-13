@@ -41,7 +41,7 @@ export default function LoginPage() {
         console.log('Login successful:', result);
         if ( result?.TipoUsuarioId=== 1) { 
           console.log('Login successful:', result);
-          router.push('/appointment/appo');
+          router.push('/appointment/appointment');
         }
         if (result?.TipoUsuarioId === 2) {
           console.log('Login successful:', result);

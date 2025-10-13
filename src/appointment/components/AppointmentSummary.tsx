@@ -49,7 +49,7 @@ const AppointmentSummary: React.FC<Props> = ({
           <div className="flex items-center space-x-3">
             <User className="w-5 h-5 text-blue-600" />
             <div>
-              <p className="font-medium text-gray-900">{profesional.Nombre}</p>
+              <p className="font-medium text-gray-900">{profesional.NombreCompleto}</p>
               <p className="text-sm text-gray-600">{profesional.NombreEspecialidad}</p>
             </div>
           </div>

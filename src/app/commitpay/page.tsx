@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
 import Link from 'next/link';
 import { commitTransaction } from '@/services/paymentService';
+import { newAppointment, sendEmailConfirmation } from '@/services/patientService';
 
 export default function CommitPayPage() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
@@ -18,6 +19,13 @@ export default function CommitPayPage() {
   
   // TBK_TOKEN se envía cuando hay un error o cancelación
   const tbk_token = searchParams.get('TBK_TOKEN');
+
+  const verificarMetodo = (paymentType: string) => {
+    switch (paymentType) {
+      case 'VN':
+        return {id: 3, name: 'Tarjeta de Débito'};
+  }
+}
   
   useEffect(() => {
     console.log('Token recibido:', token_ws);
@@ -41,9 +49,13 @@ export default function CommitPayPage() {
       try {
         // Obtener datos guardados en localStorage
         const citaId = localStorage.getItem('idCita');
-        const pacienteRut = localStorage.getItem('idPaciente');
+        const pacienteId = localStorage.getItem('idPaciente');
         const correo = localStorage.getItem('correo');
         const nombrePsicologo = localStorage.getItem('nombrePsicologo');
+        const nombrePaciente = localStorage.getItem('nombrePaciente');
+        const horaCita = localStorage.getItem('horaCita');
+        const fechaCita = localStorage.getItem('fechaCita');
+        const especialidad = localStorage.getItem('especialidad');
         
         console.log('Verificando transacción con token:', token_ws);
         const response = await commitTransaction(token_ws);
@@ -51,17 +63,47 @@ export default function CommitPayPage() {
         
         // Verificamos si el pago fue exitoso
         if (response.status === 'AUTHORIZED') {
+          console.log('Pago autorizado:', response);
           setTransactionDetails({
             ...response,
+            payment_type: verificarMetodo(response.payment_type_code),
             citaId,
             correo: correo ? JSON.parse(correo) : null,
-            nombrePsicologo: nombrePsicologo ? JSON.parse(nombrePsicologo) : null
+            nombrePsicologo: nombrePsicologo ? JSON.parse(nombrePsicologo) : null,
+            pacienteId: pacienteId ? JSON.parse(pacienteId) : null,
           });
           setStatus('success');
           setMessage('¡El pago ha sido procesado exitosamente!');
           
           // Aca hacer un llamado a la API para confirmar la cita y pago
-          // await confirmarCita(citaId, token_ws);
+          await newAppointment({
+            IdCita: Number(citaId),
+            IdPaciente: pacienteId ? JSON.parse(pacienteId) : null,
+            IdEstadoCita: 1, // Estado confirmado
+            valor: response.amount,
+            metodoPago: 3, // Medio de pago WebPay
+            ordenCompra: response.buy_order || '',
+            
+          })
+          await sendEmailConfirmation({
+            emailPaciente: correo ? JSON.parse(correo) : null,
+            nombrePaciente: nombrePaciente ? JSON.parse(nombrePaciente) : null,
+            nombrePsicologo: nombrePsicologo ? JSON.parse(nombrePsicologo) : null,
+            fechaCita: fechaCita ? JSON.parse(fechaCita) : null,
+            horaCita: horaCita ? JSON.parse(horaCita) : null,
+            especialidad: especialidad ? JSON.parse(especialidad) : null,
+          })
+          // Eliminar datos del localStorage
+          localStorage.removeItem('idPaciente');
+          localStorage.removeItem('correo');
+          localStorage.removeItem('nombrePsicologo');
+          localStorage.removeItem('nombrePaciente');
+          localStorage.removeItem('horaCita');
+          localStorage.removeItem('fechaCita');
+          localStorage.removeItem('especialidad');
+          localStorage.removeItem('idCita');
+          localStorage.removeItem('idPersona');
+          localStorage.removeItem('idUsuario');
         } else {
           setStatus('error');
           setMessage(`El pago no fue autorizado. Estado: ${response.status}`);
@@ -111,7 +153,7 @@ export default function CommitPayPage() {
                 {transactionDetails.card_detail && (
                   <p><strong>Tarjeta:</strong> **** **** **** {transactionDetails.card_detail.card_number}</p>
                 )}
-                <p><strong>Tipo de pago:</strong> {transactionDetails.payment_type_code}</p>
+                <p><strong>Tipo de pago:</strong> {transactionDetails.payment_type.name}</p>
                 <p><strong>Cuotas:</strong> {transactionDetails.installments_number || 'Sin cuotas'}</p>
               </div>
             )}
