@@ -8,9 +8,9 @@ import Calendar from '@/components/Calendar'
 import EspecialidadCard from '@/components/EspecialidadCard';
 import { especialidades } from '@/data/mockData';
 import { Especialidad, Horas, Psicologo } from '@/interfaces/agendamiento';
-import { getPatientData } from '@/services/patientService';
+
 import { getAllPsychologists } from '@/services/psicologoService';
-import { useAuthStore } from '@/store/auth.store';
+
 import { ArrowLeft, Calendar1, Clock } from 'lucide-react';
 import React, { useEffect, useState }  from 'react'
 
@@ -76,11 +76,7 @@ export default function AppointmentPage() {
     setLoading(true);
     
     try {
-      // aqui se llama a la api para crear la cita
       console.log('Datos del paciente recibidos:', data);
-
-      // Falta implementar el endpoint para crear la cita
-      
       await new Promise(resolve => setTimeout(resolve, 1000));
       setPatientData(data);
     } catch (error) {
@@ -127,7 +123,7 @@ export default function AppointmentPage() {
         {canGoBack && (
           <button
             onClick={handleBack}
-            className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 mb-6 transition-colors"
+            className="flex items-center px-3 py-1 space-x-3 rounded-md text-blue-500 hover:text-blue-600 mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver</span>
@@ -202,10 +198,10 @@ export default function AppointmentPage() {
             </div>
 
             {selectedDate && selectedTime && (
-              <div className="mt-8 text-center">
+              <div className="relative mt-8 text-center">
                 <button
                   onClick={handleDateTimeComplete}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors"
+                  className="lg:absolute lg:-top-22 lg:right-30 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors"
                 >
                   Continuar
                 </button>

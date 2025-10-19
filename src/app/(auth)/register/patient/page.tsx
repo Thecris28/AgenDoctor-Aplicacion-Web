@@ -481,7 +481,7 @@ export default function PatientRegistrationPage() {
                       disabled={isLoading}
                       className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl disabled:opacity-70"
                     >
-                      {isLoading ? 'Procesando...' : 'Crear cuenta de psicólogo'}
+                      {isLoading ? 'Procesando...' : 'Crear cuenta de paciente'}
                     </button>
     
                   )}

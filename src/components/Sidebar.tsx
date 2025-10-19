@@ -4,12 +4,51 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth.store';
+import { getPatientData } from '@/services/patientService';
+import { usePatientStore } from '@/store/patient.store';
 
 export default function Sidebar() {
-  const router = useRouter();
   const { user } = useAuthStore();
+  const { setPatient } = usePatientStore();
+  const [patientData, setPatientData] = useState({
+    idPaciente: 0,
+    nombre: ''
+  })
+  const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+  const dataPatient = async () => {
+    // Verificar que user existe y tiene idPersona
+    if (!user || !user.idPersona) {
+      console.log("User not loaded or no idPersona:", user);
+      return;
+    }
+
+    try {
+      const userData = await getPatientData(user.idPersona);
+      console.log("Patient ID:", user.idPersona);
+      console.log("Patient Data:", userData);
+      setPatientData({
+        idPaciente: userData[0].idPaciente,
+        nombre: userData[0].nombre
+      });
+      setPatient({
+        idPaciente: userData[0].idPaciente,
+        nombre: userData[0].nombre
+      });
+
+    } catch (error) {
+      console.error("Error fetching patient data:", error);
+    }
+  };
+  
+  dataPatient();
+}, [user]); // ← AGREGAR user en las dependencias
+
+// 
+  
   
   // Extraer la sección activa de la ruta
   const section = pathname?.split('/').pop() || 'inicio';
@@ -30,6 +69,7 @@ export default function Sidebar() {
     const currentSection = pathname?.split('/').pop() || 'inicio';
     setActiveSection(currentSection);
   }, [pathname]);
+
   
   // Menú para psicólogos
   const psychologistMenu = [
@@ -87,7 +127,6 @@ export default function Sidebar() {
     // Si usas store de Zustand
     // clearProfesional();
     
-    // Redirigir a la página principal
     router.push('/');
   };
 
@@ -158,8 +197,8 @@ export default function Sidebar() {
                 {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
               </div>
               <div className="ml-3 col-span-3">
-                <p className="text-sm font-medium text-gray-900 truncate ">
-                  {user?.email || 'Usuario'}
+                <p className="text-sm font-medium text-gray-900 truncate capitalize ">
+                  {patientData.nombre || 'Usuario'}
                 </p>
                  {/* Etiqueta de rol */}
             <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

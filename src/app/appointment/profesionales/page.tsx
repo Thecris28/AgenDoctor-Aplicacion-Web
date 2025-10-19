@@ -1,26 +1,27 @@
 'use client'
 import { useState, useEffect } from 'react';
-import PsychologistCard from '@/components/PsychologistCard';
 import { getAllPsychologists } from '@/services/psicologoService';
 import { Psicologo } from '@/interfaces/agendamiento';
+import CardProfesional from './CardProfesional';
 
-// // Interfaz para el psicólogo
-// interface Psicologo {
-//   IdPsicologo: number;
-//   Nombre: string;
-//   Apellido: string;
-//   Especialidad: string;
-//   ValorSesion: string;
-//   Descripcion: string;
-//   ImagenUrl: string;
-//   Calificacion: number;
-//   Ubicacion?: string;
-//   HorarioAtencion?: string;
-// }
+
+const lista_psicologas = [
+  {imagen: 'mujer-psicologa.jpg'},
+  {imagen: 'mujer-psicologa_2.jpg'},
+]
 
 export default function ProfesionalesPage() {
   const [psicologos, setPsicologos] = useState<Psicologo[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const getImagenPorIndice = (index: number) => {
+  // Si hay imagen disponible en el índice, devolverla
+  if (index < lista_psicologas.length && lista_psicologas[index]?.imagen) {
+    return lista_psicologas[index].imagen;
+  }
+  // Si no hay imagen, devolver undefined para mostrar iniciales
+  return undefined;
+};
 
   useEffect(() => {
     const fetchPsicologos = async () => {
@@ -28,44 +29,6 @@ export default function ProfesionalesPage() {
        const getPsychologists = await getAllPsychologists()
         console.log('getPsychologists', getPsychologists)
         setPsicologos(getPsychologists);
-        // setPsicologos([
-        //   {
-        //     IdPsicologo: 1,
-        //     Nombre: "María andrea",
-        //     Apellido: "González",
-        //     Especialidad: "Psicología Clínica",
-        //     ValorSesion: "45000",
-        //     Descripcion: "Especialista en terapia cognitivo-conductual con más de 10 años de experiencia en tratamiento de ansiedad y depresión.",
-        //     ImagenUrl: "https://randomuser.me/api/portraits/women/44.jpg",
-        //     Calificacion: 4.9,
-        //     Ubicacion: "Santiago Centro",
-        //     HorarioAtencion: "Lunes a Viernes, 9:00 - 18:00"
-        //   },
-        //   {
-        //     IdPsicologo: 2,
-        //     Nombre: "Carlos",
-        //     Apellido: "Mendoza",
-        //     Especialidad: "Neuropsicología",
-        //     ValorSesion: "50000",
-        //     Descripcion: "Doctor en neuropsicología con enfoque en trastornos del aprendizaje y evaluación cognitiva en adultos mayores.",
-        //     ImagenUrl: "https://randomuser.me/api/portraits/men/32.jpg",
-        //     Calificacion: 4.7,
-        //     Ubicacion: "Providencia",
-        //     HorarioAtencion: "Martes a Sábado, 10:00 - 19:00"
-        //   },
-        //   {
-        //     IdPsicologo: 3,
-        //     Nombre: "Ana",
-        //     Apellido: "Soto",
-        //     Especialidad: "Psicología Infantil",
-        //     ValorSesion: "40000",
-        //     Descripcion: "Especialista en desarrollo infantil, problemas de conducta y orientación a padres. Enfoque lúdico y familiar.",
-        //     ImagenUrl: "https://randomuser.me/api/portraits/women/68.jpg",
-        //     Calificacion: 3.9,
-        //     Ubicacion: "Las Condes",
-        //     HorarioAtencion: "Lunes a Viernes, 14:00 - 20:00"
-        //   }
-        // ]);
         
       } catch (error) {
         console.error('Error al cargar los psicólogos:', error);
@@ -79,6 +42,7 @@ export default function ProfesionalesPage() {
 
   return (
     <>
+    
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Profesionales</h1>
         <p className="text-gray-500 font-normal">Aquí puedes encontrar información sobre los psicólogos disponibles.</p>
@@ -86,7 +50,7 @@ export default function ProfesionalesPage() {
       
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 animate-pulse">
-          {[1, 2, 3].map(i => (
+          {[1, 2].map(i => (
             <div key={i} className="bg-white rounded-xl overflow-hidden shadow-md">
               <div className="h-48 bg-gray-200"></div>
               <div className="p-6">
@@ -100,11 +64,15 @@ export default function ProfesionalesPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  gap-6">
-          {psicologos.map(psicologo => (
-            <PsychologistCard key={psicologo.IdPsicologo} psicologo={psicologo} />
-          ))}
-        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+  {psicologos.map((psicologo, index) => (
+    <CardProfesional 
+      key={psicologo.IdPsicologo} 
+      psicologo={psicologo} 
+      imagen={getImagenPorIndice(index)}
+    />
+  ))}
+</div>
       )}
     </>
   );

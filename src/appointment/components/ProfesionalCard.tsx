@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Psicologo } from '@/interfaces/agendamiento';
@@ -34,9 +35,9 @@ const ProfesionalCard = ({ profesional, onClick }: Props) => {
             <p className="text-sm text-blue-600 font-medium">
               {profesional.NombreEspecialidad}
             </p>
-            <p className="text-sm text-gray-500 mt-1">
+            {/* <p className="text-sm text-gray-500 mt-1">
               {profesional.Descripcion || 'Descripción no disponible'}
-            </p>
+            </p> */}
             <p className="text-sm text-gray-500 mt-1">
               <span>Valor de la sesión: </span>{formatCurrency(+profesional.ValorSesion) || 'Descripción no disponible'}
             </p>

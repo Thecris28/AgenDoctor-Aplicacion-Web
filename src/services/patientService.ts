@@ -1,4 +1,4 @@
-import { patient } from "@/interfaces/patient";
+import { patient, PatientAppointment } from "@/interfaces/patient";
 
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -16,9 +16,9 @@ export async function getPatientId(id: number) {
     return data;
 }
 
-export async function getPatientData(id: number) {
-    console.log("Fetching patient data for ID:", id);
-    const response = await fetch(`${API_URL}/usuarios/datosPaciente/?IdPersona=${id}`, {
+export async function getPatientData(idPersona: number) {
+    console.log("Fetching patient data for ID:", idPersona);
+    const response = await fetch(`${API_URL}/usuarios/datosPaciente/?IdPersona=${idPersona}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -62,4 +62,20 @@ export async function sendEmailConfirmation(emailData: any) {
     const data = await response.json();
     console.log("Email confirmation response data:", data);
     return data;
+}
+
+export async function getPatientAppointments(id: number) {
+    console.log("Fetching appointments for patient ID:", id);
+    const response = await fetch(`${API_URL}/usuarios/get_citas_by_id?IdPaciente=${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+        
+    });
+    if (!response.ok) {
+        throw new Error('Error fetching patient appointments');
+    }
+    const data = await response.json();
+    return data as PatientAppointment[];
 }

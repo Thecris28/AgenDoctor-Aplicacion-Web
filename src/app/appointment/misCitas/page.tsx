@@ -1,14 +1,17 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, MapPin, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { getPatientAppointments } from '@/services/patientService';
+import { useAuthStore } from '@/store/auth.store';
+import { usePatientStore } from '@/store/patient.store';
+import { PatientAppointment } from '@/interfaces/patient';
 
 interface Cita {
-  id: number;
-  fechaCita: string;
-  horaCita: string;
+  idCita: number;
+  fecha: string;
+  hora: string;
   profesional: {
     nombre: string;
-    apellido: string;
     especialidad: string;
     imagen?: string;
   };
@@ -22,83 +25,20 @@ interface Cita {
 
 export default function MisCitasPage() {
   const [activeTab, setActiveTab] = useState<'pendientes' | 'completadas'>('pendientes');
-  const [citas, setCitas] = useState<Cita[]>([]);
+  const [citas, setCitas] = useState<PatientAppointment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Simulación de datos - reemplaza con tu API
+  const { patient } = usePatientStore();
+  
   useEffect(() => {
+    setLoading(true);
     const fetchCitas = async () => {
-      setLoading(true);
+
+     if (!patient) return;
       try {
-        // Aquí harías la llamada a tu API
-        // const response = await fetch('/api/paciente/citas');
-        // const data = await response.json();
         
-        // Datos de ejemplo
-        const citasEjemplo: Cita[] = [
-          {
-            id: 1,
-            fechaCita: '2024-10-20',
-            horaCita: '10:00',
-            profesional: {
-              nombre: 'Dr. María',
-              apellido: 'González',
-              especialidad: 'Psicología Clínica',
-              imagen: 'https://randomuser.me/api/portraits/women/44.jpg'
-            },
-            estado: 'Programada',
-            modalidad: 'Presencial',
-            direccion: 'Av. Providencia 1234, Santiago',
-            precio: 45000
-          },
-          {
-            id: 2,
-            fechaCita: '2024-10-15',
-            horaCita: '14:30',
-            profesional: {
-              nombre: 'Dr. Carlos',
-              apellido: 'Mendoza',
-              especialidad: 'Neuropsicología',
-              imagen: 'https://randomuser.me/api/portraits/men/32.jpg'
-            },
-            estado: 'Completada',
-            modalidad: 'Virtual',
-            linkVirtual: 'https://meet.google.com/abc-def-ghi',
-            notas: 'Sesión completada satisfactoriamente. Continuar con ejercicios recomendados.',
-            precio: 50000
-          },
-          {
-            id: 3,
-            fechaCita: '2024-10-25',
-            horaCita: '16:00',
-            profesional: {
-              nombre: 'Dra. Ana',
-              apellido: 'Soto',
-              especialidad: 'Psicología Infantil',
-              imagen: 'https://randomuser.me/api/portraits/women/68.jpg'
-            },
-            estado: 'Programada',
-            modalidad: 'Virtual',
-            linkVirtual: 'https://zoom.us/j/123456789',
-            precio: 40000
-          },
-          {
-            id: 4,
-            fechaCita: '2024-10-08',
-            horaCita: '11:00',
-            profesional: {
-              nombre: 'Dr. Luis',
-              apellido: 'Morales',
-              especialidad: 'Psicología Clínica',
-            },
-            estado: 'No Asistió',
-            modalidad: 'Presencial',
-            direccion: 'Las Condes 567, Santiago',
-            precio: 45000
-          }
-        ];
-        
-        setCitas(citasEjemplo);
+        const appointments = await getPatientAppointments(patient?.idPaciente || 0);
+        setCitas(appointments);
       } catch (error) {
         console.error('Error loading citas:', error);
       } finally {
@@ -107,15 +47,15 @@ export default function MisCitasPage() {
     };
 
     fetchCitas();
-  }, []);
+  }, [patient]);
 
   // Filtrar citas según el tab activo
   const citasPendientes = citas.filter(cita => 
-    cita.estado === 'Programada'
+    cita.estado_cita === 'Programada'
   );
   
   const citasCompletadas = citas.filter(cita => 
-    cita.estado === 'Completada' || cita.estado === 'Cancelada' || cita.estado === 'No Asistió'
+    cita.estado_cita === 'Completada' || cita.estado_cita === 'Cancelada' || cita.estado_cita === 'No Asistió'
   );
 
   const getStatusColor = (estado: string) => {
@@ -139,7 +79,9 @@ export default function MisCitasPage() {
   };
 
   const formatFecha = (fecha: string) => {
-    const date = new Date(fecha);
+    const [dia, mes, año] = fecha.split('-');
+    const date = new Date(parseInt(año), parseInt(mes) - 1, parseInt(dia));
+  
     return date.toLocaleDateString('es-CL', {
       weekday: 'long',
       year: 'numeric',
@@ -148,53 +90,53 @@ export default function MisCitasPage() {
     });
   };
 
-  const CitaCard = ({ cita }: { cita: Cita }) => (
+  const CitaCard = ({ cita }: { cita: PatientAppointment }) => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center space-x-3">
+      <div className="flex justify-between items-start space-y-3 mb-4 flex-col md:flex-row">
+        <div className="flex items-center space-x-3 ">
           <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100">
-            {cita.profesional.imagen ? (
-              <img 
-                src={cita.profesional.imagen} 
-                alt={`${cita.profesional.nombre} ${cita.profesional.apellido}`}
+            {cita.Diagnostico ? (
+              <img
+                src={cita.Diagnostico}
+                alt={`${cita.Diagnostico} ${cita.Diagnostico}`}
                 className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                {cita.profesional.nombre[0]}{cita.profesional.apellido[0]}
+                {cita.nombre_psicologo.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">
-              {cita.profesional.nombre} {cita.profesional.apellido}
+               {cita.nombre_psicologo}
             </h3>
-            <p className="text-sm text-gray-600">{cita.profesional.especialidad}</p>
+            <p className="text-sm text-blue-500 font-medium">{cita.especialidad}</p>
           </div>
         </div>
         
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(cita.estado)}`}>
-          {getStatusIcon(cita.estado)}
-          {cita.estado}
+        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(cita.estado_cita)}`}>
+          {getStatusIcon(cita.estado_cita)}
+          {cita.estado_cita}
         </span>
       </div>
 
       <div className="space-y-3">
         <div className="flex items-center text-gray-600">
           <Calendar size={16} className="mr-2" />
-          <span>{formatFecha(cita.fechaCita)}</span>
+          <span>{formatFecha(cita.fecha)}</span>
         </div>
         
         <div className="flex items-center text-gray-600">
           <Clock size={16} className="mr-2" />
-          <span>{cita.horaCita} hrs</span>
+          <span>{cita.hora} hrs</span>
         </div>
 
         <div className="flex items-center text-gray-600">
-          {cita.modalidad === 'Presencial' ? (
+          {cita.Tratamiento === 'Presencial' ? (
             <>
               <MapPin size={16} className="mr-2" />
-              <span>{cita.direccion}</span>
+              <span>{cita.Tratamiento}</span>
             </>
           ) : (
             <>
@@ -206,13 +148,13 @@ export default function MisCitasPage() {
 
         <div className="flex justify-between items-center pt-3 border-t border-gray-100">
           <span className="text-lg font-semibold text-gray-900">
-            ${cita.precio.toLocaleString('es-CL')}
+            ${Number(cita.monto).toLocaleString('es-CL')}
           </span>
           
           <div className="flex gap-2">
-            {cita.estado === 'Programada' && (
+            {cita.estado_cita === 'Programada' && (
               <>
-                {cita.modalidad === 'Virtual' && cita.linkVirtual && (
+                {/* {cita. === 'Virtual' && cita.linkVirtual && (
                   <a
                     href={cita.linkVirtual}
                     target="_blank"
@@ -221,14 +163,14 @@ export default function MisCitasPage() {
                   >
                     Unirse
                   </a>
-                )}
+                )} */}
                 <button className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                  Reprogramar
+                  Reagendar
                 </button>
               </>
             )}
             
-            {cita.estado === 'Completada' && (
+            {cita.estado_cita === 'Completada' && (
               <button className="px-3 py-1.5 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
                 Ver detalles
               </button>
@@ -236,10 +178,10 @@ export default function MisCitasPage() {
           </div>
         </div>
 
-        {cita.notas && (
+        {cita.Diagnostico && (
           <div className="mt-3 p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Notas:</strong> {cita.notas}
+              <strong>Notas:</strong> {cita.Diagnostico}
             </p>
           </div>
         )}
@@ -248,7 +190,7 @@ export default function MisCitasPage() {
   );
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-2 md:p-6 max-w-6xl mx-auto min-h-svh">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Mis Citas</h1>
@@ -261,23 +203,31 @@ export default function MisCitasPage() {
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab('pendientes')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`flex py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'pendientes'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Próximas Citas ({citasPendientes.length})
+              Próximas Citas 
+              <p className={`rounded-xl ml-2 px-3 flex py-0.5 items-center justify-center text-xs font-semibold
+                ${activeTab === 'pendientes' ? 'text-blue-700 bg-blue-100' : 'bg-gray-300 text-gray-700'}`}>
+                {citasPendientes.length}
+                </p>
             </button>
             <button
               onClick={() => setActiveTab('completadas')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`flex py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'completadas'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Historial ({citasCompletadas.length})
+              Historial
+              <p className={`rounded-xl ml-2 px-3 flex py-0.5 items-center justify-center text-xs font-semibold
+                ${activeTab === 'completadas' ? 'text-blue-700 bg-blue-100' : 'bg-gray-300 text-gray-700'}`}>
+                {citasCompletadas.length}
+                </p>
             </button>
           </nav>
         </div>
@@ -306,10 +256,10 @@ export default function MisCitasPage() {
       ) : (
         <>
           {activeTab === 'pendientes' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {citasPendientes.length > 0 ? (
                 citasPendientes.map(cita => (
-                  <CitaCard key={cita.id} cita={cita} />
+                  <CitaCard key={cita.IdCita} cita={cita} />
                 ))
               ) : (
                 <div className="col-span-2 text-center py-12">
@@ -328,7 +278,7 @@ export default function MisCitasPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {citasCompletadas.length > 0 ? (
                 citasCompletadas.map(cita => (
-                  <CitaCard key={cita.id} cita={cita} />
+                  <CitaCard key={cita.IdCita} cita={cita} />
                 ))
               ) : (
                 <div className="col-span-2 text-center py-12">

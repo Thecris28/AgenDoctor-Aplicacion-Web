@@ -160,16 +160,16 @@ export default function CommitPayPage() {
             
             <div className="w-full space-y-3">
               <Link 
-                href="/dashboard"
+                href="/appointment/appointment"
                 className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors text-center"
               >
-                Ir al Dashboard
+                Agendar otra cita
               </Link>
               <Link
-                href="/appointment"
+                href="/login"
                 className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-6 rounded-lg transition-colors text-center"
               >
-                Agendar otra cita
+                Salir
               </Link>
             </div>
           </div>
@@ -186,16 +186,16 @@ export default function CommitPayPage() {
             </p>
             <div className="w-full space-y-3">
               <Link
-                href="/appointment"
+                href="/commitpay"
                 className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors text-center"
               >
                 Intentar nuevamente
               </Link>
               <Link
-                href="/"
+                href="/appointment/appointment"
                 className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-6 rounded-lg transition-colors text-center"
               >
-                Volver al inicio
+                Volver al dashboard
               </Link>
             </div>
           </div>
