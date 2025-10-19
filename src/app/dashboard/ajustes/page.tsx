@@ -1,4 +1,4 @@
-// src/app/dashboard/ajustes/page.tsx
+
 import { getComunas } from '@/services/comunasService';
 import AjustesClientComponent from './AjustesClient';
 import { getSpecialties } from '@/services/psicologoService';

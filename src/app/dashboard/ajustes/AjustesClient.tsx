@@ -1,6 +1,6 @@
 'use client'
 import { DataPsychologist, Specialties } from "@/interfaces/psychologist";
-import { getDataById, updatePersonalInfo } from "@/services/psicologoService";
+import { getPsychologistDataById, updatePersonalInfo } from "@/services/psicologoService";
 import { useAuthStore } from "@/store/auth.store";
 import { ChevronDown, Mail, Lock, User, Map, GraduationCap } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -186,7 +186,7 @@ export default function AjustesClientComponent({ comunas, specialties }: Props) 
         if (!psicologoId) return;
         const fetchData = async () => {
             try {
-                const psychologistData = await getDataById(psicologoId);
+                const psychologistData = await getPsychologistDataById(psicologoId);
                 const data: DataPsychologist = psychologistData[0];
 
                 console.log('Fetched psychologist data:', data);

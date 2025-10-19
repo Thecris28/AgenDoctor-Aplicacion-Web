@@ -1,9 +1,33 @@
 
+import { Specialties } from "@/interfaces/psychologist";
+import { getComunas } from "@/services/comunasService";
+import { getSpecialties } from "@/services/psicologoService";
+import AjustesPacienteComponent from "./AjustesPaciente";
 
-import React from 'react'
 
-export default function ConfiguracionPage() {
-  return (
-    <div>ConfiguracionPage</div>
-  )
+type Comuna = {
+    IdComuna: number;
+    NombreComuna: string;
+    CiudadIdCiudad: number;
 }
+
+
+export default async function AjustesPage() {
+    // Los datos se cargan en el servidor antes del renderizado
+    let comunas = [] as Comuna[];
+    
+    
+    try {
+        const comunasResponse = await getComunas();
+        comunas = comunasResponse.data || [];
+
+    } catch (error) {
+        console.error('Error loading comunas on server:', error);
+        // Los datos estarán vacíos, pero la página se renderizará
+    }
+
+    return (
+        <AjustesPacienteComponent comunas={comunas} />
+    );
+}
+

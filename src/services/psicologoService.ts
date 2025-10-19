@@ -39,7 +39,7 @@ export async function getTimeSlots(psicologoId: number, date: string) {
 }
 
 
-export async function getDataById(psicologoId: number) {
+export async function getPsychologistDataById(psicologoId: number) {
   const response = await fetch(`${API_URL}/psicologos/info_psicologo?idPsicologo=${psicologoId}`, {
     method: 'GET',
     headers: {

@@ -23,3 +23,16 @@ export interface PatientAppointment {
     monto:            string;
     especialidad:      string;
 }
+
+export interface DataPatient {
+    nombre:          string;
+    rut:             string;
+    telefono:        string;
+    correo:          string;
+    fechaNacimiento: Date;
+    idPaciente:      number;
+    Numero:          number;
+    Calle:           string;
+    ComunaIdComuna:  number;
+}
+

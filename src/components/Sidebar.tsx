@@ -47,9 +47,6 @@ export default function Sidebar() {
   dataPatient();
 }, [user]); // ← AGREGAR user en las dependencias
 
-// 
-  
-  
   // Extraer la sección activa de la ruta
   const section = pathname?.split('/').pop() || 'inicio';
   const [activeSection, setActiveSection] = useState(section);
