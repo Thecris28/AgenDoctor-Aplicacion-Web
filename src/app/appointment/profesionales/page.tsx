@@ -41,7 +41,7 @@ export default function ProfesionalesPage() {
   }, []);
 
   return (
-    <>
+    <section className='p-6 pt-12 md:p-8 max-w-6xl mx-auto'>
     
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Profesionales</h1>
@@ -74,6 +74,6 @@ export default function ProfesionalesPage() {
   ))}
 </div>
       )}
-    </>
+    </section>
   );
 }

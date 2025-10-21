@@ -5,6 +5,7 @@ import { getPatientAppointments } from '@/services/patientService';
 import { useAuthStore } from '@/store/auth.store';
 import { usePatientStore } from '@/store/patient.store';
 import { PatientAppointment } from '@/interfaces/patient';
+import { useUserData } from '@/hooks/useUserData';
 
 interface Cita {
   idCita: number;
@@ -27,7 +28,7 @@ export default function MisCitasPage() {
   const [activeTab, setActiveTab] = useState<'pendientes' | 'completadas'>('pendientes');
   const [citas, setCitas] = useState<PatientAppointment[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const { userData } = useUserData();
   const { patient } = usePatientStore();
   
   useEffect(() => {
@@ -48,6 +49,16 @@ export default function MisCitasPage() {
 
     fetchCitas();
   }, [patient]);
+
+  // useEffect(() => {
+  //   setLoading(true);
+  //   if (userData?.idPaciente) {
+  //     // Usar el ID del paciente para obtener sus citas
+  //     getPatientAppointments(userData.idPaciente)
+  //       .then(setCitas)
+  //       .finally(() => setLoading(false));
+  //   }
+  // }, [userData?.idPaciente]);
 
   // Filtrar citas según el tab activo
   const citasPendientes = citas.filter(cita => 
@@ -190,7 +201,7 @@ export default function MisCitasPage() {
   );
 
   return (
-    <div className="p-2 md:p-6 max-w-6xl mx-auto min-h-svh">
+    <div className="p-6 pt-12 md:p-8 max-w-6xl mx-auto min-h-svh">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Mis Citas</h1>

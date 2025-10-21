@@ -27,3 +27,20 @@ export interface Specialties {
     NombreEspecialidad: string;
 }
 
+export interface PsychologistAppointments {
+    idCita:      number;
+    fechaCita:   Date;
+    horaCita:    string;
+    diagnostico: string | null;
+    tratamiento: string | null;
+    estado_cita: string;
+    paciente:    Paciente;
+}
+
+export interface Paciente {
+    idPaciente:     number;
+    nombreCompleto: string;
+    edad:           number;
+}
+
+

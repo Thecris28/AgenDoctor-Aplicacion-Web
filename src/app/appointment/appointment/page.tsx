@@ -115,7 +115,7 @@ export default function AppointmentPage() {
   const canGoBack = currentStep !== 'especialidad' && currentStep !== 'confirmacion';
 
   return (
-    <div className="flex flex-col justify-center items-center w-full bg-gray-50">
+    <div className="flex flex-col justify-center items-center w-full bg-gray-50 p-6 pt-12 md:p-8">
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ProgresSteps currentStep={getStepNumber(currentStep)} />

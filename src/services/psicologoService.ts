@@ -53,7 +53,7 @@ export async function getPsychologistDataById(psicologoId: number) {
 
   const data = await response.json();
 
-  return data;
+  return data ;
 }
 
 export async function getSpecialties() {
@@ -91,3 +91,38 @@ export async function updatePersonalInfo(params: DataPsychologist) {
   return data;
 }
 
+export const getPsychologistAppointments = async (IdPsicologo: number) => {
+  const response = await fetch(`${API_URL}/psicologos/get_citas_psicologo?IdPsicologo=${IdPsicologo}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Error fetching psychologist appointments');
+  }
+
+  const data = await response.json();
+
+  return data;
+
+};
+
+export async function updateAppointment(updateData: any) {
+  const response = await fetch(`${API_URL}/paciente/finalizarCita`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updateData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error updating appointment');
+  }
+
+  const data = await response.json();
+
+  return data;
+}

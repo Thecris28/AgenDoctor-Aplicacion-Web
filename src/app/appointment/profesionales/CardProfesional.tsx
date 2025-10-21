@@ -45,8 +45,8 @@ export default function CardProfesional({ psicologo, imagen }: CardProfesionalPr
             {/* Header del profesional */}
             <div className='border-b border-gray-200'>
                 <div className='flex flex-col p-5 items-center md:flex-row space-x-4'>
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
-                        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
+                    <div className="w-18 h-18 rounded-full overflow-hidden bg-gray-100">
+                        <div className="w-18 h-18 rounded-full overflow-hidden bg-gray-100">
                             {imagen ? (
             <img 
                 src={`/${imagen}`} 

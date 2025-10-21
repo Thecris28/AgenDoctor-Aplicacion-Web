@@ -241,7 +241,7 @@ export default function AjustesForm({
   };
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl pt-12 p-6 md:p-8">
       <div className="space-y-12">
         {/* Información Personal */}
         <FormSection
@@ -410,7 +410,6 @@ export default function AjustesForm({
                 <select
                   id="comuna"
                   name="comuna"
-                  autoComplete="comuna"
                   value={addressData.comuna}
                   onChange={handleAddressChange}
                   className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
@@ -440,7 +439,6 @@ export default function AjustesForm({
                   type="text"
                   value={addressData.calle}
                   onChange={handleAddressChange}
-                  autoComplete="street-address"
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
               </div>
@@ -457,7 +455,6 @@ export default function AjustesForm({
                   type="text"
                   value={addressData.numero}
                   onChange={handleAddressChange}
-                  autoComplete="address-level2"
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
               </div>

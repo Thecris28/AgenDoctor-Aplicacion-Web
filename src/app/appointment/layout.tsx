@@ -6,8 +6,8 @@ export default function AppointmentLayout({children}: {children: React.ReactNode
     <div className='bg-gray-50 h-screen'>
       
         <Sidebar />
-      <div className='p-4 md:ml-64 bg-gray-50' >
-        <div className='p-4   rounded-lg bg-gray-50'>
+      <div className='md:ml-64 bg-gray-50' >
+        <div className='rounded-lg bg-gray-50'>
             {children}
         </div>
       </div>

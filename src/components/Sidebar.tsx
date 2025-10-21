@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth.store';
 import { getPatientData } from '@/services/patientService';
 import { usePatientStore } from '@/store/patient.store';
+import { getPsychologistDataById } from '@/services/psicologoService';
+import { DataPsychologist } from '@/interfaces/psychologist';
 
 export default function Sidebar() {
   const { user } = useAuthStore();
@@ -19,33 +21,34 @@ export default function Sidebar() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-  const dataPatient = async () => {
-    // Verificar que user existe y tiene idPersona
-    if (!user || !user.idPersona) {
-      console.log("User not loaded or no idPersona:", user);
-      return;
-    }
+  const fetchUserData = async () => {
+    if (!user || !user.idPersona) return;
 
     try {
-      const userData = await getPatientData(user.idPersona);
-      console.log("Patient ID:", user.idPersona);
-      console.log("Patient Data:", userData);
-      setPatientData({
-        idPaciente: userData[0].idPaciente,
-        nombre: userData[0].nombre
-      });
-      setPatient({
-        idPaciente: userData[0].idPaciente,
-        nombre: userData[0].nombre
-      });
-
+      if (user.role === 'patient') {
+        const userData = await getPatientData(user.idPersona);
+        setPatientData({
+          idPaciente: userData[0].idPaciente,
+          nombre: userData[0].nombre
+        });
+        setPatient({
+          idPaciente: userData[0].idPaciente,
+          nombre: userData[0].nombre
+        });
+      } else if (user.role === 'psychologist' && user.idPsicologo) {
+        const psychData: DataPsychologist[] = await getPsychologistDataById(user.idPsicologo);
+        setPatientData({
+          idPaciente: 0, // No aplica para psicólogos
+          nombre: psychData[0].PrimerNombre + ' ' + psychData[0].ApellidoPaterno
+        });
+      }
     } catch (error) {
-      console.error("Error fetching patient data:", error);
+      console.error("Error fetching user data:", error);
     }
   };
   
-  dataPatient();
-}, [user]); // ← AGREGAR user en las dependencias
+  fetchUserData();
+}, [user]);
 
   // Extraer la sección activa de la ruta
   const section = pathname?.split('/').pop() || 'inicio';
@@ -75,9 +78,8 @@ export default function Sidebar() {
     { id: 'pacientes', label: 'Pacientes', icon: Users, href: '/dashboard/pacientes' },
     { id: 'agenda', label: 'Mi Agenda', icon: Clock, href: '/dashboard/agenda' },
     { id: 'reportes', label: 'Informes', icon: FileText, href: '/dashboard/reportes' },
-    { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, href: '/dashboard/mensajes' },
-    { id: 'perfil', label: 'Mi Perfil', icon: User, href: '/dashboard/perfil' },
-    { id: 'ajustes', label: 'Ajustes', icon: Settings, href: `/dashboard/ajustes?id=${user?.idPsicologo}` },
+    { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, href: '/dashboard/message' },
+    { id: 'ajustes', label: 'Ajustes', icon: Settings, href: `/dashboard/settings` },
   ];
   
   // Menú para pacientes
