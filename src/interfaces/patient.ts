@@ -1,6 +1,10 @@
 
 export interface patient{
     nombre:          string;
+    primerNombre:    string;
+    segundoNombre:   string;
+    apellidoPaterno: string;
+    apellidoMaterno: string;
     rut:             string;
     telefono:        string;
     correo:          string;
@@ -10,6 +14,7 @@ export interface patient{
 export interface PatientAppointment {
     IdCita:           number;
     IdUsuario:        number;
+    IdPsicologo:      number;
     fecha:            string;
     hora:             string;
     nombre_paciente:  string;

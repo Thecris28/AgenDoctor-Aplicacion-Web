@@ -7,22 +7,6 @@ import { usePatientStore } from '@/store/patient.store';
 import { PatientAppointment } from '@/interfaces/patient';
 import { useUserData } from '@/hooks/useUserData';
 
-interface Cita {
-  idCita: number;
-  fecha: string;
-  hora: string;
-  profesional: {
-    nombre: string;
-    especialidad: string;
-    imagen?: string;
-  };
-  estado: 'Programada' | 'Completada' | 'Cancelada' | 'No Asistió';
-  modalidad: 'Presencial' | 'Virtual';
-  direccion?: string;
-  linkVirtual?: string;
-  notas?: string;
-  precio: number;
-}
 
 export default function MisCitasPage() {
   const [activeTab, setActiveTab] = useState<'pendientes' | 'completadas'>('pendientes');
@@ -31,34 +15,34 @@ export default function MisCitasPage() {
   const { userData } = useUserData();
   const { patient } = usePatientStore();
   
-  useEffect(() => {
-    setLoading(true);
-    const fetchCitas = async () => {
-
-     if (!patient) return;
-      try {
-        
-        const appointments = await getPatientAppointments(patient?.idPaciente || 0);
-        setCitas(appointments);
-      } catch (error) {
-        console.error('Error loading citas:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCitas();
-  }, [patient]);
-
   // useEffect(() => {
   //   setLoading(true);
-  //   if (userData?.idPaciente) {
-  //     // Usar el ID del paciente para obtener sus citas
-  //     getPatientAppointments(userData.idPaciente)
-  //       .then(setCitas)
-  //       .finally(() => setLoading(false));
-  //   }
-  // }, [userData?.idPaciente]);
+  //   const fetchCitas = async () => {
+
+  //    if (!patient) return;
+  //     try {
+        
+  //       const appointments = await getPatientAppointments(patient?.idPaciente || 0);
+  //       setCitas(appointments);
+  //     } catch (error) {
+  //       console.error('Error loading citas:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchCitas();
+  // }, [patient]);
+
+  useEffect(() => {
+    setLoading(true);
+    if (userData?.idPaciente) {
+      // Usar el ID del paciente para obtener sus citas
+      getPatientAppointments(userData.idPaciente)
+        .then(setCitas)
+        .finally(() => setLoading(false));
+    }
+  }, [userData?.idPaciente]);
 
   // Filtrar citas según el tab activo
   const citasPendientes = citas.filter(cita => 
@@ -106,7 +90,7 @@ export default function MisCitasPage() {
       <div className="flex justify-between items-start space-y-3 mb-4 flex-col md:flex-row">
         <div className="flex items-center space-x-3 ">
           <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100">
-            {cita.Diagnostico ? (
+            {/* {cita. ? (
               <img
                 src={cita.Diagnostico}
                 alt={`${cita.Diagnostico} ${cita.Diagnostico}`}
@@ -116,7 +100,10 @@ export default function MisCitasPage() {
               <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white font-semibold">
                 {cita.nombre_psicologo.charAt(0).toUpperCase()}
               </div>
-            )}
+            )} */}
+            <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                {cita.nombre_psicologo.charAt(0).toUpperCase()}
+              </div>
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">
@@ -286,7 +273,7 @@ export default function MisCitasPage() {
           )}
 
           {activeTab === 'completadas' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {citasCompletadas.length > 0 ? (
                 citasCompletadas.map(cita => (
                   <CitaCard key={cita.IdCita} cita={cita} />

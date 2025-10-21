@@ -110,8 +110,9 @@ export const getPsychologistAppointments = async (IdPsicologo: number) => {
 };
 
 export async function updateAppointment(updateData: any) {
+  console.log("Updating appointment with data:", updateData);
   const response = await fetch(`${API_URL}/paciente/finalizarCita`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },

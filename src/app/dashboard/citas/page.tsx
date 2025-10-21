@@ -3,13 +3,13 @@ import React, { useState, useEffect } from 'react'
 import { Calendar, Clock, User, Phone, Video, MessageCircle, CheckCircle, XCircle, AlertCircle, Filter, Search, ChevronDown, MoreHorizontal, Edit } from 'lucide-react'
 import { useUserData } from '@/hooks/useUserData'
 import Link from 'next/link';
-import { getPsychologistAppointments } from '@/services/psicologoService';
+import { getPsychologistAppointments, updateAppointment } from '@/services/psicologoService';
 import { PsychologistAppointments } from '@/interfaces/psychologist';
 import CitaModal from '@/components/CitaModal';
 
 
 type FilterType = 'todas' | 'hoy' | 'semana' | 'mes';
-type StatusFilter = 'todas' | 'programada' | 'completada' | 'cancelada';
+type StatusFilter = 'todas' | 'Programada' | 'Completada' | 'Cancelada' | 'No Asistió';
 
 export default function CitasPage() {
   const { userData, isLoading } = useUserData();
@@ -103,15 +103,15 @@ export default function CitasPage() {
 
   const getEstadoIcon = (estado: string) => {
     switch (estado) {
-      case 'programada':
+      case 'Programada':
         return <Clock className="h-4 w-4 text-blue-500" />;
-      case 'en-curso':
+      case 'En Curso':
         return <AlertCircle className="h-4 w-4 text-orange-500" />;
-      case 'completada':
+      case 'Completada':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'cancelada':
+      case 'Cancelada':
         return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'no-asistio':
+      case 'No Asistió':
         return <XCircle className="h-4 w-4 text-gray-500" />;
       default:
         return <Clock className="h-4 w-4 text-gray-400" />;
@@ -120,15 +120,15 @@ export default function CitasPage() {
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'programada':
+      case 'Programada':
         return 'bg-blue-100 text-blue-800';
-      case 'en-curso':
+      case 'En Curso':
         return 'bg-orange-100 text-orange-800';
-      case 'completada':
+      case 'Completada':
         return 'bg-green-100 text-green-800';
-      case 'cancelada':
+      case 'Cancelada':
         return 'bg-red-100 text-red-800';
-      case 'no-asistio':
+      case 'No Asistió':
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -145,10 +145,36 @@ export default function CitasPage() {
     setSelectedCita(null);
   };
 
+  const mapEstadoCita = (estado: string) => {
+    switch (estado) {
+      case 'Programada':
+        return 1;
+      case 'Confirmada':
+        return 2;
+      case 'En Curso':
+        return 3;
+      case 'Completada':
+        return 4;
+      case 'Cancelada':
+        return 5;
+      case 'No Asistió':
+        return 6;
+      default:
+        return 0;
+    }
+  }
+
   const handleSaveCita = async (citaId: number, data: { diagnostico: string; tratamiento: string; estado_cita: string }) => {
     
     console.log('Actualizando cita:', citaId, data);
-    
+
+    updateAppointment({
+      IdCita: citaId,
+      Diagnostico: data.diagnostico,
+      Tratamiento: data.tratamiento,
+      idEstadoCita: mapEstadoCita(data.estado_cita)
+    });
+
     
     // Actualizar el estado local
     setCitas(prev => prev.map(cita => 
@@ -227,9 +253,10 @@ export default function CitasPage() {
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
             >
               <option value="todas">Todos los estados</option>
-              <option value="programada">Programadas</option>
-              <option value="completada">Completadas</option>
-              <option value="cancelada">Canceladas</option>
+              <option value="Programada">Programadas</option>
+              <option value="Completada">Completadas</option>
+              <option value="Cancelada">Canceladas</option>
+              <option value="No Asistió">No Asistió</option>
             </select>
           </div>
         </div>

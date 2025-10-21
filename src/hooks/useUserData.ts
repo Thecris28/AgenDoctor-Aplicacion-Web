@@ -7,6 +7,10 @@ import { getPsychologistDataById } from '@/services/psicologoService';
 interface UserData {
   id: number;
   nombre: string;
+  PrimerNombre?: string;
+  SegundoNombre?: string;
+  ApellidoPaterno?: string;
+  ApellidoMaterno?: string;
   email: string;
   telefono?: string;
   // Campos específicos según el rol
@@ -42,6 +46,7 @@ export const useUserData = () => {
             setUserData({
               id: patient.idPaciente,
               nombre: patient.nombre,
+
               email: user.email,
               telefono: patient.telefono,
               idPaciente: patient.idPaciente,

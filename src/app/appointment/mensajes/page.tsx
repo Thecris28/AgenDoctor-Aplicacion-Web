@@ -45,13 +45,15 @@ export default function MensajesPage() {
       
       try {
         const appointments = await getPatientAppointments(userData.idPaciente);
+
+        console.log('Patient appointments:', appointments);
         
         // Extraer psicólogos únicos de las citas
         const uniquePsychologists = appointments.reduce((acc: Psychologist[], appointment: PatientAppointment) => {
           const existingPsych = acc.find(p => p.nombre === appointment.nombre_psicologo);
           if (!existingPsych) {
             acc.push({
-              id: appointment.IdUsuario, // Usar el ID del usuario del psicólogo
+              id: appointment.IdPsicologo, // Usar el ID del usuario del psicólogo
               nombre: appointment.nombre_psicologo,
               especialidad: appointment.especialidad,
               avatar: `/api/placeholder/40/40`, // Placeholder avatar

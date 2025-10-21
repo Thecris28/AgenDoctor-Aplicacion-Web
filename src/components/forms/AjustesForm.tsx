@@ -139,7 +139,7 @@ export default function AjustesForm({
         
         // Actualizar datos personales
         setPersonalData({
-          PrimerNombre: data[0].nombre || '',
+          PrimerNombre: data[0].primerNombre || '',
           SegundoNombre: data[0].segundoNombre || '',
           ApellidoPaterno: data[0].apellidoPaterno || '',
           ApellidoMaterno: data[0].apellidoMaterno || '',

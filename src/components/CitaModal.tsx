@@ -115,11 +115,11 @@ export default function CitaModal({ isOpen, onClose, cita, onSave }: CitaModalPr
               onChange={(e) => setEstadoCita(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="programada">Programada</option>
-              <option value="en-curso">En Curso</option>
-              <option value="completada">Completada</option>
-              <option value="cancelada">Cancelada</option>
-              <option value="no-asistio">No Asistió</option>
+              <option value="Programada">Programada</option>
+              <option value="En Curso">En Curso</option>
+              <option value="Completada">Completada</option>
+              <option value="Cancelada">Cancelada</option>
+              <option value="No Asistió">No Asistió</option>
             </select>
           </div>
 
