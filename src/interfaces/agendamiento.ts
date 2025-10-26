@@ -63,3 +63,13 @@ export interface Psicologo2 {
   IdEspecialidad:     number;
 }
 
+export interface Schedule {
+  idCita:             number;
+  HoraCita:           string;
+  estadoCita:         number;
+  DescripcionEstado:  string;
+  PacienteIdPaciente: number | null;
+  NombrePaciente:     null | string;
+}
+
+

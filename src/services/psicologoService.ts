@@ -1,4 +1,4 @@
-import { Horas } from "@/interfaces/agendamiento";
+import { Horas, Schedule } from "@/interfaces/agendamiento";
 import { DataPsychologist, Specialties } from "@/interfaces/psychologist";
 
 
@@ -100,7 +100,10 @@ export const getPsychologistAppointments = async (IdPsicologo: number) => {
   });
 
   if (!response.ok) {
-    throw new Error('Error fetching psychologist appointments');
+    if (response.status === 404) {
+      return [];
+    }
+    throw new Error('Error fetching psychologist appointments',);
   }
 
   const data = await response.json();
@@ -121,6 +124,78 @@ export async function updateAppointment(updateData: any) {
 
   if (!response.ok) {
     throw new Error('Error updating appointment');
+  }
+
+  const data = await response.json();
+
+  return data;
+}
+
+export interface ResponseSchedule {
+  message:       string;
+  fechasCreadas: number;
+  horasCreadas:  number;
+}
+
+
+export async function setSchedule(setSchedule:any){
+  const response = await fetch(`${API_URL}/psicologos/insertarHorarios`,{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(setSchedule)
+  })
+  if(!response.ok){
+    throw new Error('Error al guardar horarios')
+  }
+  const data = await response.json()
+  return data as ResponseSchedule;
+}
+
+export async function getTimePsychologist(idPsicologo: number, fecha: string) {
+  const response = await fetch(`${API_URL}/psicologos/obtenerHorariosPorFecha/?idPsicologo=${idPsicologo}&fecha=${fecha}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  if (!response.ok) {
+    if (response.status === 404) {
+      return [];
+    }
+    throw new Error('Error fetching time slots');
+  }
+  const data = await response.json();
+
+  return data as Schedule[];
+}
+
+export async function patientList(idPsicologo:number) {
+  const response = await fetch(`${API_URL}/psicologos/obtenerPacientes?idPsicologo=${idPsicologo}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  if (!response.ok) {
+    throw new Error('Error fetching patient list');
+  }
+  const data = await response.json();
+
+  return data;
+}
+
+export async function getPatientHistory(idPaciente: number) {
+  const response = await fetch(`${API_URL}/psicologos/obtenerHistorialMedico/?idPaciente=${idPaciente}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Error fetching patient history');
   }
 
   const data = await response.json();

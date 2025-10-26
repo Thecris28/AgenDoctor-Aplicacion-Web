@@ -231,7 +231,7 @@ export default function Sidebar() {
                   href={item.href} 
                   key={item.id} 
                   onClick={() => handleLinkClick(item.id)}
-                  className={`w-full h-14 flex items-center px-4 py-3 text-left rounded-lg transition-all duration-200 ${
+                  className={`w-full h-12 flex items-center px-4 py-3 text-left rounded-lg transition-all duration-200 ${
                     isActive
                       ? 'bg-blue-50 text-blue-600 border border-blue-300' 
                       : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 border border-transparent hover:border-gray-200'

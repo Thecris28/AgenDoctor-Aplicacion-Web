@@ -42,13 +42,17 @@ export default function CitaModal({ isOpen, onClose, cita, onSave }: CitaModalPr
     }
   }
 
-  const formatFecha = (fecha: Date) => {
-    return new Date(fecha).toLocaleDateString('es-CL', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+  const formatFecha = (fecha: string) => {
+    
+      const [year, month, day] = fecha.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString('es-CL', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    
   }
 
   if (!isOpen || !cita) return null
@@ -79,7 +83,7 @@ export default function CitaModal({ isOpen, onClose, cita, onSave }: CitaModalPr
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+              <div className="w-12 h-12 min-w-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                 {cita.paciente.nombreCompleto.split(' ').join('').charAt(0)}
               </div>
               <div>
@@ -121,6 +125,7 @@ export default function CitaModal({ isOpen, onClose, cita, onSave }: CitaModalPr
               <option value="Cancelada">Cancelada</option>
               <option value="No Asistió">No Asistió</option>
             </select>
+            <p className='text-red-400 text-xs mt-2'>*Recuerda actualizar el estado de la cita.</p>
           </div>
 
           {/* Diagnóstico */}
@@ -132,7 +137,7 @@ export default function CitaModal({ isOpen, onClose, cita, onSave }: CitaModalPr
               value={diagnostico}
               onChange={(e) => setDiagnostico(e.target.value)}
               placeholder="Ingresa el diagnóstico del paciente..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px] resize-y"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px] resize-y"
               rows={4}
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -149,7 +154,7 @@ export default function CitaModal({ isOpen, onClose, cita, onSave }: CitaModalPr
               value={tratamiento}
               onChange={(e) => setTratamiento(e.target.value)}
               placeholder="Describe el plan de tratamiento recomendado..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[120px] resize-y"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-blue-500 focus:border-blue-500 min-h-[120px] resize-y"
               rows={5}
             />
             <p className="text-xs text-gray-500 mt-1">

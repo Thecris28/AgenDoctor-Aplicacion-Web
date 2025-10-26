@@ -74,8 +74,26 @@ export async function getPatientAppointments(id: number) {
         
     });
     if (!response.ok) {
+        
+        if (response.status === 404) {
+            return [];
+        }
         throw new Error('Error fetching patient appointments');
     }
     const data = await response.json();
     return data as PatientAppointment[];
+}
+
+export async function getChat(Criterio = 2, Dato:number){
+    const response = await fetch(`${API_URL}/usuarios/datosChat?Criterio=${Criterio}&Dato=${Dato}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Error fetching chat data');
+    }
+    const data = await response.json();
+    return data;
 }

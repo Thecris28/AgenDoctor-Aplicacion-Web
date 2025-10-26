@@ -29,7 +29,7 @@ export interface Specialties {
 
 export interface PsychologistAppointments {
     idCita:      number;
-    fechaCita:   Date;
+    fechaCita:   string;
     horaCita:    string;
     diagnostico: string | null;
     tratamiento: string | null;
@@ -42,5 +42,17 @@ export interface Paciente {
     nombreCompleto: string;
     edad:           number;
 }
+
+export interface PatientData {
+    idPaciente:     number;
+    idUsuario:      number;
+    nombreCompleto: string;
+    rut:            string;
+    correo:         string;
+    telefono:       string;
+    ultima_cita:    Date;
+    Edad:           number;
+}
+
 
 
