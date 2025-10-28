@@ -3,11 +3,11 @@
 
 import { RegisterPatient, ResponseProfesional, User } from "@/interfaces/auth";
 
-const API_URL = 'http://localhost:3000/usuarios/login/';
+const API_URL = process.env.API_URL || 'http://10.204.127.153:3000';
 
 export async function getLogin(email: string, password: string) {
 
-   const response = await fetch(`${API_URL}`, {
+   const response = await fetch(`${API_URL}/usuarios/login/`, {
      method: 'POST',
      headers: {
        'Content-Type': 'application/json',
@@ -30,8 +30,8 @@ const API_REGISTER_URL = 'http://localhost:3000/usuarios/registro_psicologo';
 
 export async function registerPsychologist(psychologistData:any) {
   console.log('Iniciando registro con datos:', psychologistData);
-  
-    const response = await fetch(API_REGISTER_URL, {
+
+    const response = await fetch(`${API_URL}/usuarios/registro_psicologo`, {
     method: 'POST',
     body: JSON.stringify(psychologistData),
     headers: {
@@ -50,7 +50,7 @@ export async function registerPsychologist(psychologistData:any) {
 }
 
 export async function registerPatient(patientData: RegisterPatient) {
-  const response = await fetch('http://localhost:3000/usuarios/insertar_paciente', {
+  const response = await fetch(`${API_URL}/usuarios/insertar_paciente`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export async function verifyPsychologistRut(rut: string) {
     };
   }
 }
- const API_RESET_URL = 'http://localhost:3000/usuarios/guardarToken';
+const API_RESET_URL = `${API_URL}/usuarios/guardarToken`;
 export async function sendToken(CorreoElectronico: string, Token:string) {
   const response = await fetch(API_RESET_URL, {
     method: 'PUT',
@@ -150,7 +150,7 @@ export async function sendToken(CorreoElectronico: string, Token:string) {
   return data;
 }
 
-const API_EMAIL_URL = 'http://localhost:3000/api/v1/email/recuperar-contrasena';
+const API_EMAIL_URL = `${API_URL}/api/v1/email/recuperar-contrasena`;
 export async function sendEmailRecovery(email: string, token:string) {
   console.log('Enviando email a:', email, 'con token:', token);
   const response = await fetch(API_EMAIL_URL, {
@@ -166,7 +166,7 @@ export async function sendEmailRecovery(email: string, token:string) {
   return data;
 }
 
-const API_VERIFY_OTP_URL = 'http://localhost:3000/usuarios/validarToken';
+const API_VERIFY_OTP_URL = `${API_URL}/usuarios/validarToken`;
 
 export const verifyOtp = async (email: string, token: string) => {
   const response = await fetch(API_VERIFY_OTP_URL, {
@@ -182,7 +182,7 @@ export const verifyOtp = async (email: string, token: string) => {
   return data;
 }
 
-const API_NEW_PASSWORD_URL = 'http://localhost:3000/usuarios/cambiar_contrasena';
+const API_NEW_PASSWORD_URL = `${API_URL}/usuarios/cambiar_contrasena`;
 export const changePassword = async(email: string, newPassword: string) => {
   console.log('Cambiando contraseña para:', email);
   console.log('Nueva contraseña:', newPassword);

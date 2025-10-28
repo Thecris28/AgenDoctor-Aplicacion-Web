@@ -1,40 +1,61 @@
-'use client'
-import React, { useState, useEffect } from 'react'
-import { Calendar, Clock, User, Phone, Video, MessageCircle, CheckCircle, XCircle, AlertCircle, Filter, Search, ChevronDown, MoreHorizontal, Edit } from 'lucide-react'
-import { useUserData } from '@/hooks/useUserData'
-import Link from 'next/link';
-import { getPsychologistAppointments, updateAppointment } from '@/services/psicologoService';
-import { PsychologistAppointments } from '@/interfaces/psychologist';
-import CitaModal from '@/components/CitaModal';
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Calendar,
+  Clock,
+  User,
+  MessageCircle,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Search,
+  MoreHorizontal,
+  Edit,
+} from "lucide-react";
+import { useUserData } from "@/hooks/useUserData";
+import {
+  getPsychologistAppointments,
+  updateAppointment,
+} from "@/services/psicologoService";
+import { PsychologistAppointments } from "@/interfaces/psychologist";
+import CitaModal from "@/components/CitaModal";
 
-
-type FilterType = 'todas' | 'hoy' | 'semana' | 'mes';
-type StatusFilter = 'todas' | 'Programada' | 'Completada' | 'Cancelada' | 'No Asistió';
+type FilterType = "todas" | "hoy" | "semana" | "mes";
+type StatusFilter =
+  | "todas"
+  | "Programada"
+  | "Completada"
+  | "Cancelada"
+  | "No Asistió";
 
 export default function CitasPage() {
   const { userData, isLoading } = useUserData();
   const [citas, setCitas] = useState<PsychologistAppointments[]>([]);
-  const [filteredCitas, setFilteredCitas] = useState<PsychologistAppointments[]>([]);
+  const [filteredCitas, setFilteredCitas] = useState<
+    PsychologistAppointments[]
+  >([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState<FilterType>('todas');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('todas');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState<FilterType>("todas");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("todas");
+
   // Estados para el modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCita, setSelectedCita] = useState<PsychologistAppointments | null>(null);
-
+  const [selectedCita, setSelectedCita] =
+    useState<PsychologistAppointments | null>(null);
 
   useEffect(() => {
     const fetchCitas = async () => {
       setLoading(true);
       if (!userData?.idPsicologo) return;
       try {
-        const response = await getPsychologistAppointments(userData?.idPsicologo);
+        const response = await getPsychologistAppointments(
+          userData?.idPsicologo
+        );
         setCitas(response);
+        console.log("Citas fetched:", response);
       } catch (error) {
-        console.error('Error fetching appointments:', error);
+        console.error("Error fetching appointments:", error);
       } finally {
         setLoading(false);
       }
@@ -51,67 +72,82 @@ export default function CitasPage() {
 
     // Filtro por búsqueda
     if (searchTerm) {
-      filtered = filtered.filter(cita =>
-        cita.paciente.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase())
-        
+      filtered = filtered.filter((cita) =>
+        cita.paciente.nombreCompleto
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
       );
     }
 
     // Filtro por fecha
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    
+    const todayStr = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, "0"),
+      String(today.getDate()).padStart(2, "0"),
+    ].join("-");
+    console.log("Applying date filter:", todayStr);
+
     switch (dateFilter) {
-      case 'hoy':
-        filtered = filtered.filter(cita => String(cita.fechaCita) === todayStr);
+      case "hoy":
+        filtered = filtered.filter(
+          (cita) => String(cita.fechaCita) === todayStr
+        );
         break;
-      case 'semana':
+      case "semana":
         const weekStart = new Date(today);
         weekStart.setDate(today.getDate() - today.getDay());
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekStart.getDate() + 6);
-        filtered = filtered.filter(cita => {
+        filtered = filtered.filter((cita) => {
           const citaDate = new Date(cita.fechaCita);
           return citaDate >= weekStart && citaDate <= weekEnd;
         });
         break;
-      case 'mes':
-        filtered = filtered.filter(cita => {
+      case "mes":
+        filtered = filtered.filter((cita) => {
           const citaDate = new Date(cita.fechaCita);
-          return citaDate.getMonth() === today.getMonth() && 
-                 citaDate.getFullYear() === today.getFullYear();
+          return (
+            citaDate.getMonth() === today.getMonth() &&
+            citaDate.getFullYear() === today.getFullYear()
+          );
         });
         break;
     }
 
     // Filtro por estado
-    if (statusFilter !== 'todas') {
-      filtered = filtered.filter(cita => cita.estado_cita === statusFilter);
+    if (statusFilter !== "todas") {
+      filtered = filtered.filter((cita) => cita.estado_cita === statusFilter);
     }
 
     setFilteredCitas(filtered);
   }, [citas, searchTerm, dateFilter, statusFilter]);
 
   const formatFecha = (fecha: string) => {
-    return new Date(fecha).toLocaleDateString('es-CL', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    const [year, month, day] = fecha.split("-").map(Number);
+    // Si el formato es YYYY-MM-DD
+    if (year && month && day) {
+      const localDate = new Date(year, month - 1, day);
+      return localDate.toLocaleDateString("es-CL", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
   };
 
   const getEstadoIcon = (estado: string) => {
     switch (estado) {
-      case 'Programada':
+      case "Programada":
         return <Clock className="h-4 w-4 text-blue-500" />;
-      case 'En Curso':
+      case "En Curso":
         return <AlertCircle className="h-4 w-4 text-orange-500" />;
-      case 'Completada':
+      case "Completada":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'Cancelada':
+      case "Cancelada":
         return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'No Asistió':
+      case "No Asistió":
         return <XCircle className="h-4 w-4 text-gray-500" />;
       default:
         return <Clock className="h-4 w-4 text-gray-400" />;
@@ -120,18 +156,18 @@ export default function CitasPage() {
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'Programada':
-        return 'bg-blue-100 text-blue-800';
-      case 'En Curso':
-        return 'bg-orange-100 text-orange-800';
-      case 'Completada':
-        return 'bg-green-100 text-green-800';
-      case 'Cancelada':
-        return 'bg-red-100 text-red-800';
-      case 'No Asistió':
-        return 'bg-gray-100 text-gray-800';
+      case "Programada":
+        return "bg-blue-100 text-blue-800";
+      case "En Curso":
+        return "bg-orange-100 text-orange-800";
+      case "Completada":
+        return "bg-green-100 text-green-800";
+      case "Cancelada":
+        return "bg-red-100 text-red-800";
+      case "No Asistió":
+        return "bg-gray-100 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -147,50 +183,62 @@ export default function CitasPage() {
 
   const mapEstadoCita = (estado: string) => {
     switch (estado) {
-      case 'Programada':
+      case "Programada":
         return 1;
-      case 'Confirmada':
+      case "Confirmada":
         return 2;
-      case 'En Curso':
+      case "En Curso":
         return 3;
-      case 'Completada':
+      case "Completada":
         return 4;
-      case 'Cancelada':
+      case "Cancelada":
         return 5;
-      case 'No Asistió':
+      case "No Asistió":
         return 6;
       default:
         return 0;
     }
-  }
+  };
 
-  const handleSaveCita = async (citaId: number, data: { diagnostico: string; tratamiento: string; estado_cita: string }) => {
-    
-    console.log('Actualizando cita:', citaId, data);
+  const handleSaveCita = async (
+    citaId: number,
+    data: { diagnostico: string; tratamiento: string; estado_cita: string }
+  ) => {
+    console.log("Actualizando cita:", citaId, data);
 
     updateAppointment({
       IdCita: citaId,
       Diagnostico: data.diagnostico,
       Tratamiento: data.tratamiento,
-      idEstadoCita: mapEstadoCita(data.estado_cita)
+      idEstadoCita: mapEstadoCita(data.estado_cita),
     });
 
-    
     // Actualizar el estado local
-    setCitas(prev => prev.map(cita => 
-      cita.idCita === citaId 
-        ? { ...cita, diagnostico: data.diagnostico, tratamiento: data.tratamiento, estado_cita: data.estado_cita }
-        : cita
-    ));
-    
+    setCitas((prev) =>
+      prev.map((cita) =>
+        cita.idCita === citaId
+          ? {
+            ...cita,
+            diagnostico: data.diagnostico,
+            tratamiento: data.tratamiento,
+            estado_cita: data.estado_cita,
+          }
+          : cita
+      )
+    );
+
     // Mostrar mensaje de éxito (opcional)
-    alert('Cita actualizada exitosamente');
+    alert("Cita actualizada exitosamente");
   };
 
   const handleStatusChange = (citaId: number, newStatus: string) => {
-    setCitas(prev => prev.map(cita => 
-      cita.idCita === citaId ? { ...cita, estado_cita: newStatus as any } : cita
-    ));
+    setCitas((prev) =>
+      prev.map((cita) =>
+        cita.idCita === citaId
+          ? { ...cita, estado_cita: newStatus as any }
+          : cita
+      )
+    );
   };
 
   if (isLoading || loading) {
@@ -199,8 +247,11 @@ export default function CitasPage() {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-white rounded-xl border border-gray-200 p-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl border border-gray-200 p-6"
+              >
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
                 <div className="h-4 bg-gray-200 rounded w-1/2"></div>
               </div>
@@ -284,7 +335,7 @@ export default function CitasPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Completadas</p>
               <p className="text-2xl font-bold text-gray-900">
-                {citas.filter(c => c.estado_cita === 'completada').length}
+                {citas.filter((c) => c.estado_cita === "Completada").length}
               </p>
             </div>
           </div>
@@ -298,7 +349,7 @@ export default function CitasPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Pendientes</p>
               <p className="text-2xl font-bold text-gray-900">
-                {citas.filter(c => c.estado_cita === 'programada').length}
+                {citas.filter((c) => c.estado_cita === "Programada").length}
               </p>
             </div>
           </div>
@@ -312,7 +363,13 @@ export default function CitasPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Hoy</p>
               <p className="text-2xl font-bold text-gray-900">
-                {citas.filter(c => String(c.fechaCita) === new Date().toISOString().split('T')[0]).length}
+                {
+                  citas.filter(
+                    (c) =>
+                      String(c.fechaCita) ===
+                      new Date().toISOString().split("T")[0]
+                  ).length
+                }
               </p>
             </div>
           </div>
@@ -324,41 +381,60 @@ export default function CitasPage() {
         {filteredCitas.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
             <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No hay citas</h3>
-            <p className="text-gray-600">No se encontraron citas con los filtros seleccionados.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No hay citas
+            </h3>
+            <p className="text-gray-600">
+              No se encontraron citas con los filtros seleccionados.
+            </p>
           </div>
         ) : (
           filteredCitas.map((cita) => (
-            <div key={cita.idCita} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div
+              key={cita.idCita}
+              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
+            >
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                        {cita.paciente.nombreCompleto.split(' ').join('').charAt(0)}
+                      <div className="w-10 h-10 min-w-10 rounded-full bg-blue-500 flex text-2xl justify-center text-white font-medium">
+                        {cita.paciente.nombreCompleto
+                          .split(" ")
+                          .join("")
+                          .charAt(0)}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{cita.paciente.nombreCompleto}</h3>
+                        <h3 className="font-semibold text-gray-900 capitalize">
+                          {cita.paciente.nombreCompleto}
+                        </h3>
                         <p className="text-sm text-gray-600">
-                          {cita.paciente.edad ? `${cita.paciente.edad} años` : 'Edad no especificada'}
+                          {cita.paciente.edad
+                            ? `${cita.paciente.edad} años`
+                            : "Edad no especificada"}
                         </p>
                       </div>
                     </div>
 
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium flex gap-1 w-fit ${getEstadoColor(cita.estado_cita)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium flex gap-1 w-fit ${getEstadoColor(
+                        cita.estado_cita
+                      )}`}
+                    >
                       {getEstadoIcon(cita.estado_cita)}
-                      {cita.estado_cita.charAt(0).toUpperCase() + cita.estado_cita.slice(1)}
+                      {cita.estado_cita.charAt(0).toUpperCase() +
+                        cita.estado_cita.slice(1)}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      <span>{String(cita.fechaCita)}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                    <div className="col-span-2 flex items-center">
+                      <Calendar className="h-4 w-4 min-w-4 mr-2" />
+                      <span>{formatFecha(String(cita.fechaCita))}</span>
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-2" />
-                      <span>{cita.horaCita}</span>
+                      <span className="">{cita.horaCita}</span>
                     </div>
                     <div className="flex items-center">
                       {/* <span className={`px-2 py-1 rounded text-xs ${cita.tipo === 'virtual' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
@@ -383,16 +459,14 @@ export default function CitasPage() {
 
                 {/* Acciones */}
                 <div className="flex flex-col sm:flex-row gap-2">
-                  
-                  
-                  <button 
+                  <button
                     onClick={() => handleOpenModal(cita)}
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2 text-sm"
                   >
                     <Edit className="h-4 w-4" />
                     Actualizar
                   </button>
-                  
+
                   <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2 text-sm">
                     <MessageCircle className="h-4 w-4" />
                     Mensaje
@@ -404,16 +478,20 @@ export default function CitasPage() {
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                     <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                      {cita.estado_cita === 'programada' && (
+                      {cita.estado_cita === "programada" && (
                         <button
-                          onClick={() => handleStatusChange(cita.idCita, 'completada')}
+                          onClick={() =>
+                            handleStatusChange(cita.idCita, "completada")
+                          }
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           Marcar como completada
                         </button>
                       )}
                       <button
-                        onClick={() => handleStatusChange(cita.idCita, 'cancelada')}
+                        onClick={() =>
+                          handleStatusChange(cita.idCita, "cancelada")
+                        }
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                       >
                         Cancelar cita

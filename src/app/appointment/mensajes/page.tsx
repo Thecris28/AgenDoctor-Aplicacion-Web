@@ -1,13 +1,18 @@
 'use client'
 import { useState, useEffect, useRef } from 'react';
 import { useUserData } from '@/hooks/useUserData';
-import { getPatientAppointments } from '@/services/patientService';
+import { getChat, getPatientAppointments } from '@/services/patientService';
 import { PatientAppointment } from '@/interfaces/patient';
 import { Send, Search, Phone, Video, MoreVertical, Paperclip, Smile, ArrowLeft } from 'lucide-react';
+import { io, Socket } from 'socket.io-client';
+import { useAuthStore } from '@/store/auth.store';
+
+
 
 interface Psychologist {
-  id: number;
-  nombre: string;
+  IdUsuario: number;
+  Nombre: string;
+  PsicologoIdPsicologo: number;
   especialidad: string;
   avatar?: string;
   lastMessage?: string;
@@ -26,17 +31,168 @@ interface Message {
   isRead: boolean;
 }
 
+// Interface para mensajes de Socket.io
+interface SocketMessage {
+  SenderId: number;
+  ReceiverId: number;
+  Mensaje: string;
+  timestamp?: string;
+  id?: number;
+}
+
 export default function MensajesPage() {
   const { userData, isLoading } = useUserData();
   const [psychologists, setPsychologists] = useState<Psychologist[]>([]);
   const [selectedPsychologist, setSelectedPsychologist] = useState<Psychologist | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [allMessages, setAllMessages] = useState<{[key: string]: Message[]}>({});
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingMessages, setLoadingMessages] = useState(false);
-  // Estado para controlar la vista en móviles: true = mostrar chat, false = mostrar lista
   const [showChatOnMobile, setShowChatOnMobile] = useState(false);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
+  
+  const {user} = useAuthStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  console.log('User Data in MensajesPage:', user?.idUsuario);
+  console.log('User Data in MensajesPage:', userData);
+
+  // Configuración de Socket.io
+  useEffect(() => {
+    if (!userData?.id) return;
+
+    // Crear conexión Socket.io
+    const newSocket = io("http://10.204.127.153:3000", { 
+      path: "/socket.io",
+      transports: ['websocket', 'polling'],
+      query: {
+        userId: userData.id.toString(),
+        userType: 'patient' // Identificar como paciente
+      }
+    });
+
+    // Eventos de conexión
+    newSocket.on('connect', () => {
+      console.log('Conectado al servidor Socket.io');
+      setConnectionStatus('connected');
+      
+      // Unirse a la sala personal del usuario
+      newSocket.emit('join_room', `user_${userData.id}`);
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('Desconectado del servidor Socket.io');
+      setConnectionStatus('disconnected');
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Error de conexión Socket.io:', error);
+      setConnectionStatus('disconnected');
+    });
+
+    // Escuchar mensajes entrantes
+    newSocket.on('message', (socketMessage: SocketMessage) => {
+      console.log('Mensaje recibido:', socketMessage);
+      
+      // Solo procesar si el mensaje es para este usuario o de este usuario
+      if (socketMessage.ReceiverId === userData.id || socketMessage.SenderId === userData.id) {
+        
+        // Convertir mensaje de socket a formato local
+        const message: Message = {
+          id: socketMessage.id || Date.now(),
+          senderId: socketMessage.SenderId,
+          receiverId: socketMessage.ReceiverId,
+          content: socketMessage.Mensaje,
+          timestamp: socketMessage.timestamp || new Date().toISOString(),
+          type: 'text',
+          isRead: socketMessage.SenderId !== userData.id
+        };
+
+        // Determinar el ID del otro usuario en la conversación
+        const otherUserId = socketMessage.SenderId === userData.id ? socketMessage.ReceiverId : socketMessage.SenderId;
+        const conversationKey = `${Math.min(userData.id, otherUserId)}-${Math.max(userData.id, otherUserId)}`;
+
+        // Agregar mensaje a la conversación específica
+        setAllMessages(prev => {
+          const currentMessages = prev[conversationKey] || [];
+          
+          // Verificar duplicados
+          const isDuplicate = currentMessages.some(msg => 
+            msg.senderId === socketMessage.SenderId && 
+            msg.receiverId === socketMessage.ReceiverId &&
+            msg.content === socketMessage.Mensaje &&
+            Math.abs(new Date(msg.timestamp).getTime() - new Date(message.timestamp).getTime()) < 5000
+          );
+          
+          if (!isDuplicate) {
+            return {
+              ...prev,
+              [conversationKey]: [...currentMessages, message]
+            };
+          }
+          return prev;
+        });
+
+        // Actualizar mensajes actuales SOLO si es la conversación seleccionada actualmente
+        if (selectedPsychologist && 
+            (selectedPsychologist.IdUsuario === otherUserId)) {
+          setMessages(prev => {
+            const isDuplicate = prev.some(msg => 
+              msg.senderId === socketMessage.SenderId && 
+              msg.receiverId === socketMessage.ReceiverId &&
+              msg.content === socketMessage.Mensaje &&
+              Math.abs(new Date(msg.timestamp).getTime() - new Date(message.timestamp).getTime()) < 5000
+            );
+            
+            return isDuplicate ? prev : [...prev, message];
+          });
+        }
+        
+        // Actualizar último mensaje en la lista de psicólogos
+        if (socketMessage.SenderId !== userData.id) {
+          setPsychologists(prev => prev.map(psych => 
+            psych.IdUsuario === socketMessage.SenderId 
+              ? {
+                  ...psych,
+                  lastMessage: socketMessage.Mensaje,
+                  lastMessageTime: formatTime(message.timestamp),
+                  unreadCount: (psych.unreadCount || 0) + 1
+                }
+              : psych
+          ));
+        }
+      }
+    });
+
+    // Escuchar estado de usuarios online
+    newSocket.on('user_online', (userId: number) => {
+      setPsychologists(prev => prev.map(psych => 
+        psych.IdUsuario === userId ? { ...psych, isOnline: true } : psych
+      ));
+    });
+
+    newSocket.on('user_offline', (userId: number) => {
+      setPsychologists(prev => prev.map(psych => 
+        psych.IdUsuario === userId ? { ...psych, isOnline: false } : psych
+      ));
+    });
+
+    // Escuchar confirmación de mensaje leído
+    newSocket.on('message_read', (messageId: number) => {
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, isRead: true } : msg
+      ));
+    });
+
+    setSocket(newSocket);
+
+    // Cleanup al desmontar
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [userData?.id, selectedPsychologist]);
 
   // Cargar psicólogos con los que ha tenido citas
   useEffect(() => {
@@ -44,86 +200,75 @@ export default function MensajesPage() {
       if (!userData?.idPaciente) return;
       
       try {
-        const appointments = await getPatientAppointments(userData.idPaciente);
+        const data: Psychologist[] = await getChat(2, userData.idPaciente);
+        console.log('Datos de chat obtenidos:', data);
+        setPsychologists(data);
 
-        console.log('Patient appointments:', appointments);
-        
-        // Extraer psicólogos únicos de las citas
-        const uniquePsychologists = appointments.reduce((acc: Psychologist[], appointment: PatientAppointment) => {
-          const existingPsych = acc.find(p => p.nombre === appointment.nombre_psicologo);
-          if (!existingPsych) {
-            acc.push({
-              id: appointment.IdPsicologo, // Usar el ID del usuario del psicólogo
-              nombre: appointment.nombre_psicologo,
-              especialidad: appointment.especialidad,
-              avatar: `/api/placeholder/40/40`, // Placeholder avatar
-              lastMessage: 'Hola, ¿cómo te sientes después de nuestra última sesión?',
-              lastMessageTime: '14:30',
-              unreadCount: Math.floor(Math.random() * 3), // Simulado
-              isOnline: Math.random() > 0.5, // Simulado
-            });
-          }
-          return acc;
-        }, []);
-        
-        setPsychologists(uniquePsychologists);
+        // Solicitar estado online de los psicólogos
+        if (socket) {
+          data.forEach(psych => {
+            socket.emit('check_user_status', psych.IdUsuario);
+          });
+        }
       } catch (error) {
         console.error('Error fetching psychologists:', error);
       }
     };
 
     fetchPsychologists();
-  }, [userData?.idPaciente]);
+  }, [userData?.idPaciente, socket]);
 
-  // Simular carga de mensajes para el psicólogo seleccionado
+  // Cargar historial de mensajes para el psicólogo seleccionado
   useEffect(() => {
-    if (selectedPsychologist) {
+    const loadChatHistory = async () => {
+      if (!selectedPsychologist || !userData?.id || !socket) return;
+
       setLoadingMessages(true);
-      // Simular delay de carga
-      setTimeout(() => {
-        const mockMessages: Message[] = [
-          {
-            id: 1,
-            senderId: selectedPsychologist.id,
-            receiverId: userData?.id || 0,
-            content: 'Hola, ¿cómo has estado desde nuestra última sesión?',
-            timestamp: '2024-10-19T10:00:00Z',
+      
+      try {
+        // Solicitar historial de chat al servidor
+        socket.emit('load_chat_history', {
+          userId: userData.id,
+          otherUserId: selectedPsychologist.IdUsuario,
+          limit: 50 // Cargar últimos 50 mensajes
+        });
+
+        // Escuchar respuesta del historial
+        socket.once('chat_history', (history: SocketMessage[]) => {
+          const formattedMessages: Message[] = history.map((msg, index) => ({
+            id: msg.id || index,
+            senderId: msg.SenderId,
+            receiverId: msg.ReceiverId,
+            content: msg.Mensaje,
+            timestamp: msg.timestamp || new Date().toISOString(),
             type: 'text',
-            isRead: true,
-          },
-          {
-            id: 2,
-            senderId: userData?.id || 0,
-            receiverId: selectedPsychologist.id,
-            content: 'Hola doctor, he estado practicando los ejercicios que me recomendó.',
-            timestamp: '2024-10-19T10:05:00Z',
-            type: 'text',
-            isRead: true,
-          },
-          {
-            id: 3,
-            senderId: selectedPsychologist.id,
-            receiverId: userData?.id || 0,
-            content: 'Excelente, me alegra escuchar eso. ¿Has notado alguna mejora en tu estado de ánimo?',
-            timestamp: '2024-10-19T10:10:00Z',
-            type: 'text',
-            isRead: true,
-          },
-          {
-            id: 4,
-            senderId: userData?.id || 0,
-            receiverId: selectedPsychologist.id,
-            content: 'Sí, definitivamente me siento más tranquilo. Los ejercicios de respiración me han ayudado mucho.',
-            timestamp: '2024-10-19T10:15:00Z',
-            type: 'text',
-            isRead: false,
-          },
-        ];
-        setMessages(mockMessages);
+            isRead: true // Historial se considera leído
+          }));
+
+          setMessages(formattedMessages);
+          setLoadingMessages(false);
+        });
+
+        // Marcar mensajes como leídos
+        setPsychologists(prev => prev.map(psych => 
+          psych.IdUsuario === selectedPsychologist.IdUsuario 
+            ? { ...psych, unreadCount: 0 }
+            : psych
+        ));
+
+        // Timeout en caso de no respuesta
+        setTimeout(() => {
+          setLoadingMessages(false);
+        }, 5000);
+
+      } catch (error) {
+        console.error('Error loading chat history:', error);
         setLoadingMessages(false);
-      }, 500);
-    }
-  }, [selectedPsychologist, userData?.id]);
+      }
+    };
+
+    loadChatHistory();
+  }, [selectedPsychologist, userData?.id, socket]);
 
   // Auto-scroll a los mensajes más recientes
   useEffect(() => {
@@ -133,7 +278,6 @@ export default function MensajesPage() {
   // Reset de vista móvil en cambio de tamaño de pantalla
   useEffect(() => {
     const handleResize = () => {
-      // Si la pantalla es de escritorio (md y superior), resetear vista móvil
       if (window.innerWidth >= 768) {
         setShowChatOnMobile(false);
       }
@@ -144,19 +288,21 @@ export default function MensajesPage() {
   }, []);
 
   const handleSendMessage = () => {
-    if (!newMessage.trim() || !selectedPsychologist || !userData) return;
+    if (!newMessage.trim() || !selectedPsychologist || !userData || !socket) return;
 
-    const message: Message = {
-      id: messages.length + 1,
-      senderId: userData.id,
-      receiverId: selectedPsychologist.id,
-      content: newMessage.trim(),
-      timestamp: new Date().toISOString(),
-      type: 'text',
-      isRead: false,
+    const messageData: SocketMessage = {
+      SenderId: userData.id,
+      ReceiverId: selectedPsychologist.IdUsuario,
+      Mensaje: newMessage.trim(),
+      
     };
 
-    setMessages(prev => [...prev, message]);
+    // Enviar mensaje via socket
+    socket.emit('message', {
+      ...messageData
+    });
+
+    // Limpiar el input inmediatamente para mejor UX
     setNewMessage('');
   };
 
@@ -169,15 +315,29 @@ export default function MensajesPage() {
 
   const handleSelectPsychologist = (psychologist: Psychologist) => {
     setSelectedPsychologist(psychologist);
-    setShowChatOnMobile(true); // Mostrar chat en móvil
+    setShowChatOnMobile(true);
+    
+    // Cargar mensajes de esta conversación específica
+    if (userData?.id) {
+      const conversationKey = `${Math.min(userData.id, psychologist.IdUsuario)}-${Math.max(userData.id, psychologist.IdUsuario)}`;
+      const conversationMessages = allMessages[conversationKey] || [];
+      setMessages(conversationMessages);
+      
+      // Marcar mensajes como leídos
+      setPsychologists(prev => prev.map(psych => 
+        psych.IdUsuario === psychologist.IdUsuario 
+          ? { ...psych, unreadCount: 0 }
+          : psych
+      ));
+    }
   };
 
   const handleBackToList = () => {
-    setShowChatOnMobile(false); // Volver a la lista en móvil
+    setShowChatOnMobile(false);
   };
 
   const filteredPsychologists = psychologists.filter(psych =>
-    psych.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    psych.Nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     psych.especialidad.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -201,7 +361,14 @@ export default function MensajesPage() {
       }`}>
         {/* Header del sidebar */}
         <div className="p-4 pt-8 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900 mb-4">Mensajes</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl font-semibold text-gray-900">Mensajes</h1>
+            {/* Indicador de conexión */}
+            <div className={`w-3 h-3 rounded-full ${
+              connectionStatus === 'connected' ? 'bg-green-500' : 
+              connectionStatus === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'
+            }`} title={`Estado: ${connectionStatus}`}></div>
+          </div>
           
           {/* Búsqueda */}
           <div className="relative">
@@ -226,10 +393,10 @@ export default function MensajesPage() {
           ) : (
             filteredPsychologists.map((psychologist) => (
               <div
-                key={psychologist.id}
+                key={psychologist.IdUsuario}
                 onClick={() => handleSelectPsychologist(psychologist)}
                 className={`p-4 border-b border-gray-100 cursor-pointer transition-colors ${
-                  selectedPsychologist?.id === psychologist.id
+                  selectedPsychologist?.IdUsuario === psychologist.IdUsuario
                     ? 'bg-blue-50 border-blue-200'
                     : 'hover:bg-gray-50'
                 }`}
@@ -238,7 +405,7 @@ export default function MensajesPage() {
                   {/* Avatar con indicador online */}
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                      {psychologist.nombre.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      {psychologist.Nombre.split(' ').map(n => n[0]).join('').slice(0, 1)}
                     </div>
                     {psychologist.isOnline && (
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
@@ -248,7 +415,7 @@ export default function MensajesPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {psychologist.nombre}
+                        {psychologist.Nombre}
                       </p>
                       <p className="text-xs text-gray-500">
                         {psychologist.lastMessageTime}
@@ -258,7 +425,7 @@ export default function MensajesPage() {
                       {psychologist.especialidad}
                     </p>
                     <p className="text-sm text-gray-500 truncate mt-1">
-                      {psychologist.lastMessage}
+                      {psychologist.lastMessage || 'No hay mensajes aún'}
                     </p>
                   </div>
 
@@ -294,14 +461,14 @@ export default function MensajesPage() {
                 
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                    {selectedPsychologist.nombre.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    {selectedPsychologist.Nombre.split(' ').map(n => n[0]).join('').slice(0, 1)}
                   </div>
                   {selectedPsychologist.isOnline && (
                     <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                   )}
                 </div>
                 <div>
-                  <h2 className="font-semibold text-gray-900">{selectedPsychologist.nombre}</h2>
+                  <h2 className="font-semibold text-gray-900">{selectedPsychologist.Nombre}</h2>
                   <p className="text-sm text-gray-500">
                     {selectedPsychologist.isOnline ? 'En línea' : 'Desconectado'} • {selectedPsychologist.especialidad}
                   </p>
@@ -310,7 +477,12 @@ export default function MensajesPage() {
 
               {/* Acciones del chat */}
               <div className="flex items-center space-x-2">
-                
+                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                  <Phone className="h-5 w-5" />
+                </button>
+                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                  <Video className="h-5 w-5" />
+                </button>
                 <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
                   <MoreVertical className="h-5 w-5" />
                 </button>
@@ -322,6 +494,15 @@ export default function MensajesPage() {
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  <p className="ml-2 text-gray-600">Cargando mensajes...</p>
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  <div className="text-center">
+                    <Send className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p>No hay mensajes aún</p>
+                    <p className="text-sm">Escribe el primer mensaje para comenzar la conversación</p>
+                  </div>
                 </div>
               ) : (
                 messages.map((message) => (
@@ -337,13 +518,16 @@ export default function MensajesPage() {
                       }`}
                     >
                       <p className="text-sm">{message.content}</p>
-                      <p
-                        className={`text-xs mt-1 ${
-                          message.senderId === userData?.id ? 'text-blue-100' : 'text-gray-500'
-                        }`}
-                      >
-                        {formatTime(message.timestamp)}
-                      </p>
+                      <div className={`flex items-center justify-between text-xs mt-1 ${
+                        message.senderId === userData?.id ? 'text-blue-100' : 'text-gray-500'
+                      }`}>
+                        <span>{formatTime(message.timestamp)}</span>
+                        {message.senderId === userData?.id && (
+                          <span className="ml-2">
+                            {message.isRead ? '✓✓' : '✓'}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
@@ -353,6 +537,12 @@ export default function MensajesPage() {
 
             {/* Input de mensaje */}
             <div className="bg-white border-t border-gray-200 p-4">
+              {connectionStatus !== 'connected' && (
+                <div className="mb-2 p-2 bg-yellow-100 text-yellow-800 text-sm rounded">
+                  Conexión {connectionStatus}. Los mensajes se enviarán cuando se restablezca la conexión.
+                </div>
+              )}
+              
               <div className="flex items-center space-x-2">
                 <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
                   <Paperclip className="h-5 w-5" />
@@ -365,7 +555,8 @@ export default function MensajesPage() {
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Escribe un mensaje..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={connectionStatus !== 'connected'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                   />
                   <button className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
                     <Smile className="h-4 w-4" />
@@ -374,7 +565,7 @@ export default function MensajesPage() {
                 
                 <button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim()}
+                  disabled={!newMessage.trim() || connectionStatus !== 'connected'}
                   className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="h-5 w-5" />
@@ -395,6 +586,11 @@ export default function MensajesPage() {
               <p className="text-gray-500 max-w-sm">
                 Elige un psicólogo de la lista para comenzar a chatear y mantener comunicación entre sesiones.
               </p>
+              {connectionStatus !== 'connected' && (
+                <div className="mt-4 p-2 bg-yellow-100 text-yellow-800 text-sm rounded">
+                  Estado de conexión: {connectionStatus}
+                </div>
+              )}
             </div>
           </div>
         )}

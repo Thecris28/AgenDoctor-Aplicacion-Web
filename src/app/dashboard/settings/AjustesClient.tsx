@@ -232,7 +232,7 @@ export default function AjustesClientComponent({ comunas, specialties }: Props) 
     }, [psicologoId]);
 
     return (
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl p-6 pt-8 md:p-12">
             <div className="space-y-12">
                 {/* Formulario 1: Información Personal */}
                 <form onSubmit={handlePersonalSubmit} className="border-b border-gray-200 pb-12">

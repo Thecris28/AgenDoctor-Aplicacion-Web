@@ -65,11 +65,11 @@ export default function CardProfesional({ psicologo, imagen }: CardProfesionalPr
         ) : null}
         
         <div 
-            className="initials-fallback w-full h-full bg-blue-500 flex items-center justify-center text-white font-semibold"
+            className="initials-fallback w-full h-full bg-blue-500 flex items-center justify-center text-white text-2xl font-semibold"
             style={{ display: imagen ? 'none' : 'flex' }}
         >
             {psicologo.NombreCompleto?.split(' ')[0].charAt(0).toUpperCase()}
-            {psicologo.NombreCompleto?.split(' ').map(name => name.charAt(0)).join('').substring(2, 3).toUpperCase()}
+            {/* {psicologo.NombreCompleto?.split(' ').map(name => name.charAt(0)).join('').substring(2, 3).toUpperCase()} */}
         </div>
                           </div>
                     </div>

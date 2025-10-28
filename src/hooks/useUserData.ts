@@ -14,6 +14,7 @@ interface UserData {
   email: string;
   telefono?: string;
   // Campos específicos según el rol
+  idusuario?: number;
   idPaciente?: number;
   idPsicologo?: number;
   especialidad?: string;
@@ -44,7 +45,7 @@ export const useUserData = () => {
           if (patientData && patientData.length > 0) {
             const patient = patientData[0];
             setUserData({
-              id: patient.idPaciente,
+              id: user.idUsuario,
               nombre: patient.nombre,
 
               email: user.email,
@@ -60,6 +61,7 @@ export const useUserData = () => {
             const psychologistData = await getPsychologistDataById(user.idPsicologo);
             setUserData({
               id: user.idPsicologo,
+              idusuario: user.idUsuario,
               nombre: psychologistData.PrimerNombre + ' ' + psychologistData.PrimerApellido,
               email: user.email,
               telefono: psychologistData.Telefono,

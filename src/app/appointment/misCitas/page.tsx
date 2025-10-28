@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { usePatientStore } from '@/store/patient.store';
 import { PatientAppointment } from '@/interfaces/patient';
 import { useUserData } from '@/hooks/useUserData';
+import Link from 'next/link';
 
 
 export default function MisCitasPage() {
@@ -35,6 +36,7 @@ export default function MisCitasPage() {
   // }, [patient]);
 
   useEffect(() => {
+    try {
     setLoading(true);
     if (userData?.idPaciente) {
       // Usar el ID del paciente para obtener sus citas
@@ -42,7 +44,13 @@ export default function MisCitasPage() {
         .then(setCitas)
         .finally(() => setLoading(false));
     }
-  }, [userData?.idPaciente]);
+  } catch (error) {
+    console.error('Error loading citas:', error);
+    setCitas([]);
+  } finally {
+    setLoading(false);
+  }
+}, [userData?.idPaciente]);
 
   // Filtrar citas según el tab activo
   const citasPendientes = citas.filter(cita => 
@@ -264,9 +272,9 @@ export default function MisCitasPage() {
                   <Calendar size={48} className="mx-auto text-gray-400 mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes citas programadas</h3>
                   <p className="text-gray-600 mb-4">Agenda tu primera cita con uno de nuestros profesionales</p>
-                  <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  <Link href={'appointment'} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     Agendar Cita
-                  </button>
+                  </Link>
                 </div>
               )}
             </div>
