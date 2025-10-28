@@ -1,105 +1,88 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, Eye, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, Plus, Eye, Edit, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { getPatientHistory, patientList } from '@/services/psicologoService';
+import { useUserData } from '@/hooks/useUserData';
+import { PatientData } from '@/interfaces/psychologist';
 
-interface Patient {
-  id: string;
-  nombre: string;
-  email: string;
-  telefono: string;
-  rut: string;
-  fechaRegistro: string;
-  ultimaCita: string;
-  estado: 'Activo' | 'Inactivo';
-  avatar?: string;
+export interface Historial {
+  idCita:            number;
+  FechaCita:         Date;
+  HoraCita:          string;
+  Duracion:          string;
+  estadoCita:        number;
+  DescripcionEstado: string;
+  Diagnostico:       string;
+  Tratamiento:       string;
+  observaciones?:    string;
+}
+
+
+// Nuevas interfaces para el historial
+
+
+interface HistorialPaciente {
+  paciente: {
+    id: number;
+    nombre: string;
+    rut: string;
+    email: string;
+  };
+  citas: Historial[];
+  totalCitas: number;
 }
 
 export default function PacientesPage() {
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
+  const [patients, setPatients] = useState<PatientData[]>([]);
+  const [filteredPatients, setFilteredPatients] = useState<PatientData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
   const [loading, setLoading] = useState(true);
 
-  // Datos de ejemplo (reemplaza con tu API)
-  useEffect(() => {
-    const mockPatients: Patient[] = [
-      {
-        id: '1',
-        nombre: 'María González',
-        email: 'maria.gonzalez@email.com',
-        telefono: '+56 9 1234 5678',
-        rut: '12.345.678-9',
-        fechaRegistro: '15 Mar 2024',
-        ultimaCita: '10 Oct 2024',
-        estado: 'Activo',
-        avatar: 'https://randomuser.me/api/portraits/women/1.jpg'
-      },
-      {
-        id: '2',
-        nombre: 'Carlos Mendoza',
-        email: 'carlos.mendoza@email.com',
-        telefono: '+56 9 8765 4321',
-        rut: '18.765.432-1',
-        fechaRegistro: '20 Mar 2024',
-        ultimaCita: '08 Oct 2024',
-        estado: 'Activo',
-        avatar: 'https://randomuser.me/api/portraits/men/2.jpg'
-      },
-      {
-        id: '3',
-        nombre: 'Ana Soto',
-        email: 'ana.soto@email.com',
-        telefono: '+56 9 5555 1234',
-        rut: '15.555.123-4',
-        fechaRegistro: '25 Mar 2024',
-        ultimaCita: '05 Oct 2024',
-        estado: 'Inactivo',
-        avatar: 'https://randomuser.me/api/portraits/women/3.jpg'
-      },
-      {
-        id: '4',
-        nombre: 'Pedro Ramírez',
-        email: 'pedro.ramirez@email.com',
-        telefono: '+56 9 9999 8888',
-        rut: '19.999.888-8',
-        fechaRegistro: '30 Mar 2024',
-        ultimaCita: '02 Oct 2024',
-        estado: 'Inactivo',
-        avatar: 'https://randomuser.me/api/portraits/men/4.jpg'
-      },
-      {
-        id: '5',
-        nombre: 'Laura Herrera',
-        email: 'laura.herrera@email.com',
-        telefono: '+56 9 7777 6666',
-        rut: '17.777.666-6',
-        fechaRegistro: '05 Abr 2024',
-        ultimaCita: '01 Oct 2024',
-        estado: 'Activo',
-        avatar: 'https://randomuser.me/api/portraits/women/5.jpg'
-      },
-      {
-        id: '6',
-        nombre: 'Diego Torres',
-        email: 'diego.torres@email.com',
-        telefono: '+56 9 3333 2222',
-        rut: '13.333.222-2',
-        fechaRegistro: '10 Abr 2024',
-        ultimaCita: '28 Sep 2024',
-        estado: 'Activo',
-        avatar: 'https://randomuser.me/api/portraits/men/6.jpg'
-      }
-    ];
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Nuevos estados para el historial
+  const [selectedPacienteId, setSelectedPacienteId] = useState<number | null>(null);
+  const [historialPaciente, setHistorialPaciente] = useState<HistorialPaciente | null>(null);
+  const [citasHistorial, setCitasHistorial] = useState<Historial[]>([]);
+  const [loadingHistorial, setLoadingHistorial] = useState(false);
 
-    setTimeout(() => {
-      setPatients(mockPatients);
-      setFilteredPatients(mockPatients);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  const { userData, isLoading } = useUserData();
+
+  const fetchPatients = async () => {
+    if (!userData) return;
+
+    const data = await patientList(userData.id);
+    setPatients(data);
+    setFilteredPatients(data);
+    setLoading(false);
+  }
+
+const loadHistorialPaciente = async (pacienteId: number, pacienteData: any) => {
+  setLoadingHistorial(true);
+  try {
+    const data: Historial[] = await getPatientHistory(pacienteId);
+    setHistorialPaciente({
+      paciente: {
+        email: pacienteData.correo,
+        nombre: pacienteData.nombreCompleto,
+        rut: pacienteData.rut,
+        id: pacienteId
+      },
+      citas: data,
+      totalCitas: data.length
+    });
+    setLoadingHistorial(false);
+  } catch (error) {
+    setLoadingHistorial(false);
+  }
+};
+
+  useEffect(() => {
+    fetchPatients();
+  }, [userData]);
 
   // Filtrar pacientes
   useEffect(() => {
@@ -108,21 +91,62 @@ export default function PacientesPage() {
     // Filtro por búsqueda
     if (searchTerm) {
       filtered = filtered.filter(patient =>
-        patient.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         patient.rut.includes(searchTerm) ||
         patient.telefono.includes(searchTerm)
       );
     }
 
-    // Filtro por estado
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(patient => patient.estado.toLowerCase() === statusFilter);
-    }
-
     setFilteredPatients(filtered);
     setCurrentPage(1);
   }, [searchTerm, statusFilter, patients]);
+
+  const formatoFecha = (fecha: Date) => {
+    const date = new Date(fecha);
+    return date.toLocaleDateString('es-CL', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  // Función para formatear fecha del historial
+  const formatFechaHistorial = (fecha: string) => {
+    return new Date(fecha).toLocaleDateString('es-CL', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Función para obtener el color del estado
+  const getEstadoColor = (estado: string) => {
+    switch (estado.toLowerCase()) {
+      case 'completada': return 'bg-green-100 text-green-800 border-green-200';
+      case 'programada': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'cancelada': return 'bg-red-100 text-red-800 border-red-200';
+      case 'en progreso': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  // Función actualizada para abrir el modal
+ const openModal = (pacienteId: number, pacienteData: any) => {
+  setSelectedPacienteId(pacienteId);
+  setIsOpen(true);
+  loadHistorialPaciente(pacienteId, pacienteData);
+};
+  
+
+  // Función para cerrar el modal
+  const closeModal = () => {
+    setIsOpen(false);
+    setHistorialPaciente(null);
+    setSelectedPacienteId(null);
+    setLoadingHistorial(false);
+  };
 
   // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -143,14 +167,13 @@ export default function PacientesPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="h-screen p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Pacientes</h1>
           <p className="text-gray-600">Gestiona y consulta la información de tus pacientes</p>
         </div>
-        
       </div>
 
       {/* Filtros y búsqueda */}
@@ -190,13 +213,9 @@ export default function PacientesPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                </th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">No</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">RUT</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700">Nombre del Paciente</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Fecha de Registro</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">RUT</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700">Edad</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700">Última Cita</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700">Estado</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700">Acciones</th>
@@ -208,15 +227,6 @@ export default function PacientesPage() {
                 [...Array(5)].map((_, index) => (
                   <tr key={index} className="border-b border-gray-100 animate-pulse">
                     <td className="py-4 px-4">
-                      <div className="w-4 h-4 bg-gray-200 rounded"></div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="w-8 h-4 bg-gray-200 rounded"></div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="w-24 h-4 bg-gray-200 rounded"></div>
-                    </td>
-                    <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
                         <div className="w-32 h-4 bg-gray-200 rounded"></div>
@@ -226,68 +236,56 @@ export default function PacientesPage() {
                       <div className="w-24 h-4 bg-gray-200 rounded"></div>
                     </td>
                     <td className="py-4 px-4">
+                      <div className="w-8 h-4 bg-gray-200 rounded"></div>
+                    </td>
+                    <td className="py-4 px-4">
                       <div className="w-24 h-4 bg-gray-200 rounded"></div>
                     </td>
                     <td className="py-4 px-4">
                       <div className="w-16 h-6 bg-gray-200 rounded-full"></div>
                     </td>
                     <td className="py-4 px-4">
-                      <div className="flex gap-1">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                      </div>
+                      <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
                     </td>
                   </tr>
                 ))
               ) : currentPatients.length > 0 ? (
-                currentPatients.map((patient, index) => (
-                  <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                currentPatients.map((patient) => (
+                  <tr key={patient.idPaciente} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-4">
-                      <input type="checkbox" className="rounded border-gray-300" />
-                    </td>
-                    <td className="py-4 px-4 text-gray-600">
-                      {indexOfFirstItem + index + 1}
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white text-sm font-medium">
+                          {getInitials(patient.nombreCompleto.split(' ').slice(0,1).join(' '))}
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900 capitalize">
+                            {patient.nombreCompleto.split(' ').slice(0,1).join(' ') + ' ' + patient.nombreCompleto.split(' ').slice(2,3).join(' ')}
+                          </div>
+                          <div className="text-sm text-gray-500">{patient.correo}</div>
+                        </div>
+                      </div>
                     </td>
                     <td className="py-4 px-4 font-medium text-gray-900">
                       {patient.rut}
                     </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        {patient.avatar ? (
-                          <img
-                            src={patient.avatar}
-                            alt={patient.nombre}
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white text-sm font-medium">
-                            {getInitials(patient.nombre)}
-                          </div>
-                        )}
-                        <div>
-                          <div className="font-medium text-gray-900">{patient.nombre}</div>
-                          <div className="text-sm text-gray-500">{patient.email}</div>
-                        </div>
-                      </div>
+                    <td className="py-4 px-4 text-gray-600">
+                      {String(patient.Edad)}
                     </td>
                     <td className="py-4 px-4 text-gray-600">
-                      {patient.fechaRegistro}
-                    </td>
-                    <td className="py-4 px-4 text-gray-600">
-                      {patient.ultimaCita}
+                      {formatoFecha(patient.ultima_cita)}
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(patient.estado)}`}>
-                        {patient.estado}
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(patient.ultima_cita ? 'Activo' : 'Inactivo')}`}>
+                        {patient.ultima_cita ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex gap-1">
-                        <button className="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center hover:bg-teal-600 transition-colors">
+                        <button 
+                          onClick={() => openModal(patient.idPaciente, patient)}  
+                          className="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center hover:bg-teal-600 transition-colors"
+                        >
                           <Eye size={16} />
-                        </button>
-                        <button className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors">
-                          <Edit size={16} />
                         </button>
                       </div>
                     </td>
@@ -295,7 +293,7 @@ export default function PacientesPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-500">
+                  <td colSpan={6} className="py-12 text-center text-gray-500">
                     <div className="flex flex-col items-center gap-2">
                       <Search size={48} className="text-gray-300" />
                       <p>No se encontraron pacientes</p>
@@ -356,6 +354,134 @@ export default function PacientesPage() {
           </div>
         )}
       </div>
+
+      {/* Modal historial medico */}
+      {isOpen && (
+        <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
+          <div className='bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto'>
+            <div className='p-6'>
+              <div className='flex justify-between items-start mb-6'>
+                <div>
+                  <h2 className='text-2xl font-bold'>Historial Médico</h2>
+                  <p className='text-gray-600'>Registro de tratamiento y detalles relevantes</p>
+                  {historialPaciente && (
+                    <div className="mt-2">
+                      <p className='text-gray-900 font-medium'>{historialPaciente.paciente.nombre}</p>
+                      <p className='text-sm text-gray-500'>{historialPaciente.paciente.rut} • {historialPaciente.paciente.email}</p>
+                      <p className='text-sm text-gray-500 mt-1'>Total de citas: {historialPaciente.totalCitas}</p>
+                    </div>
+                  )}
+                </div>
+                <button 
+                  onClick={closeModal}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div>
+                {/* Contenido del modal */}
+                {loadingHistorial ? (
+                  // Loading state
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+                    <p className="ml-4 text-gray-600">Cargando historial...</p>
+                  </div>
+                ) : historialPaciente ? (
+                  <div className="space-y-6">
+
+                    {/* Lista de citas */}
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {historialPaciente.citas.map((cita) => (
+                        <div key={cita.idCita} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                          {/* Header de la cita */}
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">Cita #{cita.idCita}</h4>
+                              <p className="text-sm text-gray-600">
+                                {formatFechaHistorial(String(cita.FechaCita))} • {cita.HoraCita.slice(0, 5)} • {cita.Duracion}
+                              </p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(cita.DescripcionEstado)}`}>
+                              {cita.DescripcionEstado}
+                            </span>
+                          </div>
+
+                          {/* Detalles de la cita */}
+                          <div className="space-y-3">
+                            {cita.Diagnostico && (
+                              <div>
+                                <h5 className="font-medium text-gray-700 text-sm mb-1">Diagnóstico:</h5>
+                                <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded border-l-4 border-blue-200">
+                                  {cita.Diagnostico}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {cita.Tratamiento && (
+                              <div>
+                                <h5 className="font-medium text-gray-700 text-sm mb-1">Tratamiento:</h5>
+                                <p className="text-sm text-gray-600 bg-green-50 p-3 rounded border-l-4 border-green-200">
+                                  {cita.Tratamiento}
+                                </p>
+                              </div>
+                            )}
+
+                            {cita.observaciones && (
+                              <div>
+                                <h5 className="font-medium text-gray-700 text-sm mb-1">Observaciones:</h5>
+                                <p className="text-sm text-gray-600 bg-yellow-50 p-3 rounded border-l-4 border-yellow-200">
+                                  {cita.observaciones}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Footer con información adicional */}
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <div className="flex justify-between items-center text-xs text-gray-500">
+                              <span>Estado: {cita.estadoCita}</span>
+                              <span>Duración: {cita.Duracion}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Footer del modal */}
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                      <p className="text-sm text-gray-500">
+                        Mostrando {historialPaciente.citas.length} cita(s) del historial
+                      </p>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={closeModal}
+                          className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Cerrar
+                        </button>
+                        <button className="px-4 py-2 text-sm bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">
+                          Agendar Nueva Cita
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // Estado vacío
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Eye className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No hay historial disponible</h3>
+                    <p className="text-gray-500">Este paciente aún no tiene citas registradas.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
