@@ -76,7 +76,7 @@ export default function ForgetPassword() {
                   name="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  className="w-full pl-11 pr-4 py-3 outline-2 outline-gray-200 -outline-offset-2 rounded-xl focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="tu@email.com"
                   required
                   disabled={isSubmitting}
