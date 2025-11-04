@@ -40,6 +40,8 @@ interface SocketMessage {
   id?: number;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 export default function MensajesPage() {
   const { userData, isLoading } = useUserData();
   const [psychologists, setPsychologists] = useState<Psychologist[]>([]);
@@ -64,7 +66,7 @@ export default function MensajesPage() {
     if (!userData?.id) return;
 
     // Crear conexión Socket.io
-    const newSocket = io("http://10.204.127.153:3000", { 
+    const newSocket = io(API_URL, { 
       path: "/socket.io",
       transports: ['websocket', 'polling'],
       query: {

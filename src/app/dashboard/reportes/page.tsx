@@ -4,6 +4,18 @@
 import React, { useState, useEffect } from 'react'
 import { Calendar, DollarSign, FileText, TrendingUp, Download, Filter, Eye, Search } from 'lucide-react'
 import { useUserData } from '@/hooks/useUserData'
+import { getBillingInfo } from '@/services/psicologoService'
+
+export interface Reporte {
+  factura:         string;
+  fecha:           Date;
+  monto:           string;
+  TipoEstadoPago:  string;
+  rut:             string;
+  PrimerNombre:    string;
+  ApellidoPaterno: string;
+}
+
 
 interface Boleta {
   id: number
@@ -35,7 +47,8 @@ type PeriodoFiltro = 'semana' | 'mes' | 'trimestre' | 'año' | 'personalizado'
 
 export default function ReportesPage() {
   const { userData } = useUserData()
-  const [boletas, setBoletas] = useState<Boleta[]>([])
+
+  const [boletas, setBoletas] = useState<Reporte[]>([])
   const [estadisticas, setEstadisticas] = useState<EstadisticasReporte | null>(null)
   const [loading, setLoading] = useState(true)
   
@@ -50,22 +63,26 @@ export default function ReportesPage() {
   const [selectedBoleta, setSelectedBoleta] = useState<Boleta | null>(null)
   const [showDetalleModal, setShowDetalleModal] = useState(false)
 
+  const nombreEspecialidad = userData?.especialidad || 'Especialidad Desconocida'
+
+   // Debug: Ver qué datos tenemos
+  console.log('userData completo:', userData)
+  console.log('especialidad:', userData?.especialidad)
+
   useEffect(() => {
     loadReportes()
   }, [userData?.idPsicologo, periodoFiltro, fechaInicio, fechaFin, estadoFiltro])
 
   const loadReportes = async () => {
     if (!userData?.idPsicologo) return
-    loadMockData()
+    
     
     setLoading(true)
     try {
-      // // Aquí conectarías con tu backend
-      // const response = await fetch(`/api/reportes/boletas?psicologoId=${userData.idPsicologo}&periodo=${periodoFiltro}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}&estado=${estadoFiltro}`)
-      // const data = await response.json()
       
-      // setBoletas(data.boletas)
-      // setEstadisticas(data.estadisticas)
+      const response = await getBillingInfo(userData.idPsicologo)
+      setBoletas(response)
+      console.log('Datos de facturación recibidos:', response)
     } catch (error) {
       console.error('Error loading reportes:', error)
       // Datos simulados para desarrollo
@@ -74,55 +91,21 @@ export default function ReportesPage() {
     }
   }
 
-  const loadMockData = () => {
-    const mockBoletas: Boleta[] = [
-      {
-        id: 1,
-        numeroFactura: 'FAC-2025-001',
-        fechaEmision: '2025-10-21',
-        paciente: { nombre: 'María García', rut: '12.345.678-9' },
-        consulta: { fecha: '2025-10-21', tipo: 'Terapia Individual', duracion: 60 },
-        monto: 45000,
-        estado: 'pagada',
-        metodoPago: 'Transferencia',
-        observaciones: 'Sesión de seguimiento'
-      },
-      {
-        id: 2,
-        numeroFactura: 'FAC-2025-002',
-        fechaEmision: '2025-10-20',
-        paciente: { nombre: 'Carlos Rodríguez', rut: '98.765.432-1' },
-        consulta: { fecha: '2025-10-20', tipo: 'Terapia de Pareja', duracion: 90 },
-        monto: 60000,
-        estado: 'pagada',
-        metodoPago: 'Efectivo'
-      },
-      {
-        id: 3,
-        numeroFactura: 'FAC-2025-003',
-        fechaEmision: '2025-10-19',
-        paciente: { nombre: 'Ana López', rut: '11.222.333-4' },
-        consulta: { fecha: '2025-10-19', tipo: 'Evaluación Psicológica', duracion: 120 },
-        monto: 80000,
-        estado: 'pendiente',
-        observaciones: 'Pendiente de pago'
-      }
-    ]
 
-    const mockEstadisticas: EstadisticasReporte = {
-      totalIngresos: 185000,
-      totalConsultas: 3,
-      promedioMensual: 185000,
-      consultasPorTipo: [
-        { tipo: 'Terapia Individual', cantidad: 1, monto: 45000 },
-        { tipo: 'Terapia de Pareja', cantidad: 1, monto: 60000 },
-        { tipo: 'Evaluación Psicológica', cantidad: 1, monto: 80000 }
-      ]
-    }
+  //   const mockEstadisticas: EstadisticasReporte = {
+  //     totalIngresos: 185000,
+  //     totalConsultas: 3,
+  //     promedioMensual: 185000,
+  //     consultasPorTipo: [
+  //       { tipo: 'Terapia Individual', cantidad: 1, monto: 45000 },
+  //       { tipo: 'Terapia de Pareja', cantidad: 1, monto: 60000 },
+  //       { tipo: 'Evaluación Psicológica', cantidad: 1, monto: 80000 }
+  //     ]
+  //   }
 
-    setBoletas(mockBoletas)
-    setEstadisticas(mockEstadisticas)
-  }
+  //   setBoletas(mockBoletas)
+  //   setEstadisticas(mockEstadisticas)
+  // }
 
   const formatMonto = (monto: number) => {
     return new Intl.NumberFormat('es-CL', {
@@ -133,17 +116,17 @@ export default function ReportesPage() {
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'pagada': return 'bg-green-100 text-green-800'
-      case 'pendiente': return 'bg-yellow-100 text-yellow-800'
-      case 'vencida': return 'bg-red-100 text-red-800'
+      case 'Pagado': return 'bg-green-100 text-green-800'
+      case 'Pendiente': return 'bg-yellow-100 text-yellow-800'
+      case 'Vencida': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
 
   const boletasFiltradas = boletas.filter(boleta => {
-    const matchesSearch = boleta.paciente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         boleta.numeroFactura.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesEstado = estadoFiltro === 'todas' || boleta.estado === estadoFiltro
+    const matchesSearch = boleta.PrimerNombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         boleta.factura.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesEstado = estadoFiltro === 'todas' || boleta.TipoEstadoPago === estadoFiltro
     return matchesSearch && matchesEstado
   })
 
@@ -338,34 +321,34 @@ export default function ReportesPage() {
                   </td>
                 </tr>
               ) : (
-                boletasFiltradas.map((boleta) => (
-                  <tr key={boleta.id} className="hover:bg-gray-50">
+                boletasFiltradas.map((boleta, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {boleta.numeroFactura}
+                      {boleta.factura}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{boleta.paciente.nombre}</div>
-                      <div className="text-sm text-gray-500">{boleta.paciente.rut}</div>
+                      <div className="text-sm text-gray-900 capitalize">{boleta.PrimerNombre} {boleta.ApellidoPaterno}</div>
+                      <div className="text-sm text-gray-500">{boleta.rut}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(boleta.consulta.fecha).toLocaleDateString('es-CL')}
+                      {new Date(boleta.fecha).toLocaleDateString('es-CL')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{boleta.consulta.tipo}</div>
-                      <div className="text-sm text-gray-500">{boleta.consulta.duracion} min</div>
+                      <div className="text-sm text-gray-900">{nombreEspecialidad}</div>
+                      <div className="text-sm text-gray-500">60 min</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {formatMonto(boleta.monto)}
+                      {formatMonto(+boleta.monto)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getEstadoColor(boleta.estado)}`}>
-                        {boleta.estado.charAt(0).toUpperCase() + boleta.estado.slice(1)}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getEstadoColor(boleta.TipoEstadoPago)}`}>
+                        {boleta.TipoEstadoPago}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
                         onClick={() => {
-                          setSelectedBoleta(boleta)
+                          // setSelectedBoleta(boleta)
                           setShowDetalleModal(true)
                         }}
                         className="text-blue-600 hover:text-blue-900 mr-3"

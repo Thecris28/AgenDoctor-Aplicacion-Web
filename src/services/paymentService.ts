@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1/transbank';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://10.47.66.153:3000/api/v1/transbank';
 
 interface TransactionRequest {
   buy_order: string;

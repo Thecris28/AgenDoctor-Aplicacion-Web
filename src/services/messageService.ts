@@ -17,14 +17,16 @@ export interface Contact {
   unreadCount?: number;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 class MessageService {
   private socket: Socket | null = null;
-  private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = API_URL;
 
   // Inicializar conexión socket
   initSocket(): Socket {
     if (!this.socket) {
-      this.socket = io("http://localhost:3000", { 
+      this.socket = io(API_URL, {
         path: "/socket.io",
         transports: ['websocket', 'polling']
       });
@@ -32,11 +34,12 @@ class MessageService {
     return this.socket;
   }
 
+
   // Obtener mensajes entre dos usuarios
   async getMessages(senderId: number, receiverId: number): Promise<Message[]> {
     try {
       const response = await fetch(
-        `${this.baseUrl}/messages?SenderId=${senderId}&ReceiverId=${receiverId}`
+        `${this.baseUrl}/api/v1/messages?SenderId=${senderId}&ReceiverId=${receiverId}`
       );
       
       if (!response.ok) {

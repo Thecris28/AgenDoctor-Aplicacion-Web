@@ -26,7 +26,8 @@ const iconMap = {
   'user-check': UserCheck,
   bone: Bone,
   brain: Brain,
-  eye: Eye
+  eye: Eye,
+  users: UserCheck
   
 };
 

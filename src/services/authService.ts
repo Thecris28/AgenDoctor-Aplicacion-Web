@@ -3,7 +3,7 @@
 
 import { RegisterPatient, ResponseProfesional, User } from "@/interfaces/auth";
 
-const API_URL = process.env.API_URL || 'http://10.204.127.153:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getLogin(email: string, password: string) {
 

@@ -12,12 +12,12 @@ import { Especialidad, Horas, Psicologo } from '@/interfaces/agendamiento';
 import { getAllPsychologists } from '@/services/psicologoService';
 
 import { ArrowLeft, Calendar1, Clock } from 'lucide-react';
-import React, { useEffect, useState }  from 'react'
+import React, { useEffect, useState } from 'react'
 
 type Step = 'especialidad' | 'profesional' | 'fecha-hora' | 'datos' | 'confirmacion';
 
 export default function AppointmentPage() {
-    
+
   const [currentStep, setCurrentStep] = useState<Step>('especialidad');
   const [selectedEspecialidad, setSelectedEspecialidad] = useState<Especialidad | null>(null);
   const [selectedProfesional, setSelectedProfesional] = useState<Psicologo | null>(null);
@@ -65,7 +65,7 @@ export default function AppointmentPage() {
 
   const handleDateTimeComplete = () => {
     if (selectedDate && selectedTime) {
-      
+
       console.log('Profesional seleccionado:', selectedProfesional);
       console.log('id hora seleccionada:', selectedTime.IdCita);
       setCurrentStep('datos');
@@ -74,7 +74,7 @@ export default function AppointmentPage() {
 
   const handlePatientSubmit = async (data: any) => {
     setLoading(true);
-    
+
     try {
       console.log('Datos del paciente recibidos:', data);
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -116,17 +116,17 @@ export default function AppointmentPage() {
 
   return (
     <div className="flex flex-col justify-center items-center w-full bg-gray-50 p-6 pt-12 md:p-8">
-      
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ProgresSteps currentStep={getStepNumber(currentStep)} />
 
         {canGoBack && (
           <button
             onClick={handleBack}
-            className="flex items-center px-3 py-1 space-x-3 rounded-md text-blue-500 hover:text-blue-600 mb-6 transition-colors"
+            className="flex items-center px-4 py-1 space-x-3 rounded-lg border border-gray-200 bg-blue-500 text-white hover:shadow-lg hover:border-blue-300 hover:bg-blue-600 mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Volver</span>
+            <span className='font-medium'>Volver</span>
           </button>
         )}
 
@@ -153,14 +153,26 @@ export default function AppointmentPage() {
         {currentStep === 'profesional' && selectedEspecialidad && (
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Profesionales en {selectedEspecialidad.nombre}
+              {
+                selectedEspecialidad.id === 0 ?
+                  'Todos los Psicólogos' : `Profesionales en ${selectedEspecialidad.nombre}`
+              }
             </h2>
             <p className="text-gray-600 mb-8">
-              Seleccione el profesional de su preferencia
+              {(() => {
+                const filteredProfs = profesionales.filter(prof =>
+                  selectedEspecialidad.id === 0
+                    ? true
+                    : prof.IdEspecialidad === selectedEspecialidad.id
+                );
+                return `${filteredProfs.length} profesional${filteredProfs.length !== 1 ? 'es' : ''} disponible${filteredProfs.length !== 1 ? 's' : ''}`;
+              })()}
             </p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {profesionales
-                .filter(prof => prof.IdEspecialidad === selectedEspecialidad.id)
+                .filter(prof =>
+                  selectedEspecialidad.id === 0 ? true :
+                    prof.IdEspecialidad === selectedEspecialidad.id)
                 .map((profesional) => (
                   <ProfesionalCard
                     key={profesional.IdPsicologo}
@@ -180,13 +192,13 @@ export default function AppointmentPage() {
             <p className="text-gray-600 mb-8">
               Consulta con {selectedProfesional.NombreCompleto}
             </p>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Calendar 
+              <Calendar
                 selectedDate={selectedDate}
                 onDateSelect={setSelectedDate}
               />
-              
+
               {selectedDate && (
                 <TimeSlots
                   selectedTime={selectedTime?.HoraCita || null}
@@ -218,14 +230,14 @@ export default function AppointmentPage() {
             <p className="text-gray-600 mb-8">
               Complete sus datos para confirmar la cita médica
             </p>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="bg-white rounded-xl border border-gray-200 p-6">
                 <h4 className="font-semibold text-gray-900 mb-4">Resumen de la Cita</h4>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center space-x-3">
-                    <img 
-                      src={'/default-avatar.png'} 
+                    <img
+                      src={'/default-avatar.png'}
                       alt={selectedProfesional!.NombreCompleto}
                       className="w-8 h-8 rounded-full object-cover"
                     />
@@ -234,11 +246,11 @@ export default function AppointmentPage() {
                       <p className="text-gray-600">{selectedProfesional!.NombreEspecialidad}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-3">
 
                     <Calendar1 className="w-4 h-4 text-blue-600" />
-                    
+
                     <p className="text-gray-700">
                       {selectedDate && new Intl.DateTimeFormat('es-CL', {
                         weekday: 'long',
@@ -248,7 +260,7 @@ export default function AppointmentPage() {
                       }).format(selectedDate)}
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center space-x-3">
                     <Clock className="w-4 h-4 text-blue-600" />
                     <p className="text-gray-700">{selectedTime?.HoraCita}</p>

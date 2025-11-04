@@ -22,15 +22,34 @@ interface UserData {
   descripcion?: string;
 }
 
+export interface PsycologistData {
+  ValorSesion: string;
+  Descripcion: string;
+  EspecialidadIdEspecialidad: number;
+  Especialidad: string;
+  CorreoElectronico: string;
+  PrimerNombre: string;
+  SegundoNombre: string;
+  ApellidoPaterno: string;
+  ApellidoMaterno: string;
+  Telefono: string;
+  Rut: string;
+  FechaNacimiento: Date;
+  Calle: string;
+  Numero: number;
+  ComunaIdComuna: number;
+  IdDireccion: number;
+}
+
 export const useUserData = () => {
   const { user } = useAuthStore();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mover fetchUserData fuera del useEffect y usar useCallback
   const fetchUserData = useCallback(async () => {
     if (!user || !user.idPersona) {
+      console.log('No user or idPersona found:', user);
       setIsLoading(false);
       return;
     }
@@ -38,6 +57,8 @@ export const useUserData = () => {
     try {
       setIsLoading(true);
       setError(null);
+      
+      console.log('Fetching data for user:', user);
 
       switch (user.role) {
         case 'patient': {
@@ -47,7 +68,6 @@ export const useUserData = () => {
             setUserData({
               id: user.idUsuario,
               nombre: patient.nombre,
-
               email: user.email,
               telefono: patient.telefono,
               idPaciente: patient.idPaciente,
@@ -57,25 +77,38 @@ export const useUserData = () => {
         }
 
         case 'psychologist': {
-          if (user.idPsicologo) {
-            const psychologistData = await getPsychologistDataById(user.idPsicologo);
-            setUserData({
-              id: user.idPsicologo,
-              idusuario: user.idUsuario,
-              nombre: psychologistData.PrimerNombre + ' ' + psychologistData.PrimerApellido,
-              email: user.email,
-              telefono: psychologistData.Telefono,
-              idPsicologo: user.idPsicologo,
-              especialidad: psychologistData.EspecialidadIdEspecialidad,
-              valorSesion: psychologistData.ValorSesion,
-              descripcion: psychologistData.Descripcion,
-            });
+          
+          if (!user.idPsicologo) {
+            throw new Error('ID de psicólogo no encontrado en el usuario');
           }
+          const psychologistDataArray: PsycologistData[] = await getPsychologistDataById(user.idPsicologo);
+
+          if (!psychologistDataArray || psychologistDataArray.length === 0) {
+            throw new Error('No se encontraron datos del psicólogo');
+          }
+
+          const psychologistData = psychologistDataArray[0]; 
+
+          setUserData({
+            id: user.idPsicologo,
+            idusuario: user.idUsuario,
+            nombre: `${psychologistData.PrimerNombre || ''} ${psychologistData.ApellidoPaterno || ''}`.trim(),
+            PrimerNombre: psychologistData.PrimerNombre,
+            SegundoNombre: psychologistData.SegundoNombre,
+            ApellidoPaterno: psychologistData.ApellidoPaterno,
+            ApellidoMaterno: psychologistData.ApellidoMaterno,
+            email: psychologistData.CorreoElectronico || user.email,
+            telefono: psychologistData.Telefono,
+            idPsicologo: user.idPsicologo,
+            especialidad: psychologistData.Especialidad,
+            valorSesion: psychologistData.ValorSesion,
+            descripcion: psychologistData.Descripcion,
+          });
+
           break;
         }
 
         case 'admin': {
-          // Para admin, usar datos básicos del usuario
           setUserData({
             id: user.idUsuario,
             nombre: 'Administrador',
@@ -85,22 +118,22 @@ export const useUserData = () => {
         }
 
         default: {
-          throw new Error('Rol de usuario no reconocido');
+          throw new Error(`Rol de usuario no reconocido: ${user.role}`);
         }
       }
     } catch (err) {
       console.error('Error fetching user data:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
+      setUserData(null);
     } finally {
       setIsLoading(false);
     }
-  }, [user]); // Dependencias del useCallback
+  }, [user]);
 
   useEffect(() => {
     fetchUserData();
-  }, [fetchUserData]); // Ahora fetchUserData está disponible
+  }, [fetchUserData]);
 
-  // Función refetch que puede ser llamada desde componentes
   const refetch = useCallback(() => {
     fetchUserData();
   }, [fetchUserData]);

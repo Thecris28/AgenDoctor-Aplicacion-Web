@@ -19,6 +19,7 @@ import {
 } from "@/services/psicologoService";
 import { PsychologistAppointments } from "@/interfaces/psychologist";
 import CitaModal from "@/components/CitaModal";
+import { useRouter } from "next/navigation";
 
 type FilterType = "todas" | "hoy" | "semana" | "mes";
 type StatusFilter =
@@ -38,6 +39,7 @@ export default function CitasPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState<FilterType>("todas");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todas");
+  const router = useRouter();
 
   // Estados para el modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -230,6 +232,10 @@ export default function CitasPage() {
     // Mostrar mensaje de éxito (opcional)
     alert("Cita actualizada exitosamente");
   };
+
+  const handleRouter = () => {
+    router.push('/dashboard/message');
+  }
 
   const handleStatusChange = (citaId: number, newStatus: string) => {
     setCitas((prev) =>
@@ -467,7 +473,7 @@ export default function CitasPage() {
                     Actualizar
                   </button>
 
-                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2 text-sm">
+                  <button onClick={() => handleRouter() } className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2 text-sm">
                     <MessageCircle className="h-4 w-4" />
                     Mensaje
                   </button>

@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { PsychologistRegistration } from '@/interfaces/auth';
 import { useProfesionalStore } from '@/store/profesional.store';
 import { getComunas } from '@/services/comunasService';
+import { getSpecialties } from '@/services/psicologoService';
+import { Specialties } from '@/interfaces/psychologist';
 
 interface Comuna {
   IdComuna: number;
@@ -23,6 +25,7 @@ export default function PsychologistRegistrationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [registerError, setRegisterError] = useState('');
   const [comunas, setComunas] = useState<Comuna[]>([]);
+  const [specialties, setSpecialties] = useState<Specialties[]>([]);
   const [loadingComunas, setLoadingComunas] = useState(true);
   const { profesional, getNombreCompleto } = useProfesionalStore();
 
@@ -31,7 +34,9 @@ export default function PsychologistRegistrationPage() {
     const fetchComunas = async () => {
       try {
         const data = await getComunas();
+        const specialties = await getSpecialties();
         setComunas(data.data);
+        setSpecialties(specialties);
       } catch (error) {
         console.error('Error al cargar comunas:', error);
       } finally {
@@ -386,16 +391,23 @@ export default function PsychologistRegistrationPage() {
           </label>
           <div className="relative">
             <Award className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="number"
+            <select
               id="idSpecialty"
               name="idSpecialty"
               value={formData.idSpecialty}
               onChange={handleChange}
-              className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-              placeholder="ID de especialidad"
+              className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white appearance-none"
               required
-            />
+            >
+              <option value="">
+                {loadingComunas ? 'Cargando especialidades...' : 'Selecciona una especialidad'}
+              </option>
+              {specialties.map((specialty) => (
+                <option key={specialty.IdEspecialidad} value={specialty.IdEspecialidad}>
+                  {specialty.NombreEspecialidad}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

@@ -2,7 +2,7 @@ import { Horas, Schedule } from "@/interfaces/agendamiento";
 import { DataPsychologist, Specialties } from "@/interfaces/psychologist";
 
 
-const API_URL = process.env.API_URL || 'http://10.204.127.153:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export async function getAllPsychologists() {
   const response = await fetch(`${API_URL}/psicologos/get_psicologos`, {
     method: 'GET',
@@ -179,6 +179,9 @@ export async function patientList(idPsicologo:number) {
     },
   })
   if (!response.ok) {
+    if (response.status === 404) {
+      return [];
+    }
     throw new Error('Error fetching patient list');
   }
   const data = await response.json();
@@ -196,6 +199,25 @@ export async function getPatientHistory(idPaciente: number) {
 
   if (!response.ok) {
     throw new Error('Error fetching patient history');
+  }
+
+  const data = await response.json();
+
+  return data;
+}
+
+export async function getBillingInfo(idPsicologo: number) {
+  const response = await fetch(`${API_URL}/psicologos/ingresos?idPsicologo=${idPsicologo}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!response.ok) {
+    if (response.status === 404) {
+      return [];
+    }
+    throw new Error('Error fetching billing information');
   }
 
   const data = await response.json();

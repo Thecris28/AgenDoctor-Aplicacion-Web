@@ -2,6 +2,12 @@ import { Especialidad } from '../interfaces/agendamiento';
 
 export const especialidades: Especialidad[] = [
   {
+    id: 0,
+    nombre: 'Todos los Psicologos',
+    descripcion: 'Ver todos los profesionales disponibles',
+    icono: 'user'
+  },
+  {
     id: 1,
     nombre: 'Psicología Clínica',
     descripcion: 'Atención psicológica para adultos y adolescentes',
@@ -25,18 +31,6 @@ export const especialidades: Especialidad[] = [
     descripcion: 'Evaluación y tratamiento de trastornos neurológicos',
     icono: 'cpu'
   },
-  // {
-  //   id: 5,
-  //   nombre: 'Medicina General',
-  //   descripcion: 'Consultas médicas generales, chequeos preventivos y atención primaria',
-  //   icono: 'stethoscope'
-  // },
-  // {
-  //   id: 6,
-  //   nombre: 'Psicología',
-  //   descripcion: 'Evaluación y tratamiento de problemas emocionales y de salud mental',
-  //   icono: 'brain'
-  // },
 ];
 
 

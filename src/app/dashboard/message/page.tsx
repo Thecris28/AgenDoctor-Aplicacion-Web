@@ -5,8 +5,11 @@ import { Send, Search, MoreVertical, Paperclip, Smile, ArrowLeft } from 'lucide-
 import { patientList } from '@/services/psicologoService';
 import { PatientData } from '@/interfaces/psychologist';
 import { io } from "socket.io-client";
+import messageService from '@/services/messageService';
 
-const socket = io("http://10.204.127.153:3000", { path: "/socket.io" });
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+const socket = io(API_URL, { path: "/socket.io" });
 
 interface Message {
   SenderId: number,
@@ -42,6 +45,24 @@ export default function MensajesPage() {
 
     fetchPatients();
   }, [userData?.id]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedPatient || !userData) return;  
+      if ( userData.idusuario === undefined) return;
+      setLoadingMessages(true);
+      try {
+        const fetchedMessages = await messageService.getMessages(userData.idusuario, selectedPatient.idUsuario);
+        setMessages(fetchedMessages);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      } finally {
+        setLoadingMessages(false);
+      } 
+    };
+
+    fetchMessages();
+  }, [selectedPatient, userData]);
 
 
   // Auto-scroll a los mensajes más recientes
