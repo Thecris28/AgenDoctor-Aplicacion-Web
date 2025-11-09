@@ -4,6 +4,7 @@ import { Search, Filter, Plus, Eye, Edit, ChevronLeft, ChevronRight, X } from 'l
 import { getPatientHistory, patientList } from '@/services/psicologoService';
 import { useUserData } from '@/hooks/useUserData';
 import { PatientData } from '@/interfaces/psychologist';
+import { formatFecha } from '@/utils/dateUtils';
 
 export interface Historial {
   idCita:            number;
@@ -55,6 +56,7 @@ export default function PacientesPage() {
     if (!userData) return;
 
     const data = await patientList(userData.id);
+    console.log('Fetched patients:', data);
     setPatients(data);
     setFilteredPatients(data);
     setLoading(false);
@@ -187,7 +189,7 @@ const loadHistorialPaciente = async (pacienteId: number, pacienteData: any) => {
               placeholder="Buscar por nombre, email, RUT o teléfono..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-teal-500 focus:border-teal-500 outline-none text-gray-400 placeholder:text-gray-500 text-sm/6"
             />
           </div>
 
@@ -197,7 +199,7 @@ const loadHistorialPaciente = async (pacienteId: number, pacienteData: any) => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-teal-500 focus:border-teal-500 outline-none"
             >
               <option value="all">Todos los estados</option>
               <option value="activo">Activo</option>
@@ -272,7 +274,7 @@ const loadHistorialPaciente = async (pacienteId: number, pacienteData: any) => {
                       {String(patient.Edad)}
                     </td>
                     <td className="py-4 px-4 text-gray-600">
-                      {formatoFecha(patient.ultima_cita)}
+                      {formatFecha(String(patient.ultima_cita!).split("T")[0])}
                     </td>
                     <td className="py-4 px-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(patient.ultima_cita ? 'Activo' : 'Inactivo')}`}>
@@ -366,9 +368,9 @@ const loadHistorialPaciente = async (pacienteId: number, pacienteData: any) => {
                   <p className='text-gray-600'>Registro de tratamiento y detalles relevantes</p>
                   {historialPaciente && (
                     <div className="mt-2">
-                      <p className='text-gray-900 font-medium'>{historialPaciente.paciente.nombre}</p>
-                      <p className='text-sm text-gray-500'>{historialPaciente.paciente.rut} • {historialPaciente.paciente.email}</p>
-                      <p className='text-sm text-gray-500 mt-1'>Total de citas: {historialPaciente.totalCitas}</p>
+                      <p className='text-gray-900 font-medium capitalize'>{historialPaciente.paciente.nombre}</p>
+                      <p className='text-sm/6 text-gray-500'>{historialPaciente.paciente.rut} • {historialPaciente.paciente.email}</p>
+                      <p className='text-sm/6 text-gray-500 mt-1'>Total de citas: {historialPaciente.totalCitas}</p>
                     </div>
                   )}
                 </div>

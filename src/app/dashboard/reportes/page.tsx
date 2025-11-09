@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Calendar, DollarSign, FileText, TrendingUp, Download, Filter, Eye, Search } from 'lucide-react'
+import { Calendar, DollarSign, FileText, TrendingUp, Download, Filter, Eye, Search, ChevronDown, X } from 'lucide-react'
 import { useUserData } from '@/hooks/useUserData'
 import { getBillingInfo } from '@/services/psicologoService'
 
@@ -14,6 +14,7 @@ export interface Reporte {
   rut:             string;
   PrimerNombre:    string;
   ApellidoPaterno: string;
+  metodo_pago?:    string;
 }
 
 
@@ -40,7 +41,7 @@ interface EstadisticasReporte {
   totalIngresos: number
   totalConsultas: number
   promedioMensual: number
-  consultasPorTipo: { tipo: string; cantidad: number; monto: number }[]
+  consultasPorTipo?: { tipo: string; cantidad: number; monto: number }[]
 }
 
 type PeriodoFiltro = 'semana' | 'mes' | 'trimestre' | 'año' | 'personalizado'
@@ -60,7 +61,7 @@ export default function ReportesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   
   // Estados UI
-  const [selectedBoleta, setSelectedBoleta] = useState<Boleta | null>(null)
+  const [selectedBoleta, setSelectedBoleta] = useState<Reporte | null>(null)
   const [showDetalleModal, setShowDetalleModal] = useState(false)
 
   const nombreEspecialidad = userData?.especialidad || 'Especialidad Desconocida'
@@ -82,12 +83,24 @@ export default function ReportesPage() {
       
       const response = await getBillingInfo(userData.idPsicologo)
       setBoletas(response)
+      setEstadisticas(calcularEstadisticas(response))
       console.log('Datos de facturación recibidos:', response)
     } catch (error) {
       console.error('Error loading reportes:', error)
       // Datos simulados para desarrollo
     } finally {
       setLoading(false)
+    }
+  }
+  const calcularEstadisticas = (boletas: Reporte[]) => {
+    const totalIngresos = boletas.reduce((sum, boleta) => sum + parseFloat(boleta.monto), 0)
+    const totalConsultas = boletas.length
+    const promedioMensual = totalConsultas > 0 ? totalIngresos / (totalConsultas / 1) : 0 // Asumiendo datos de 1 mes
+
+    return {
+      totalIngresos,
+      totalConsultas,
+      promedioMensual
     }
   }
 
@@ -146,7 +159,7 @@ export default function ReportesPage() {
       {/* Estadísticas Resumen */}
       {estadisticas && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="bg-white p-6 rounded-lg border border-gray-300">
             <div className="flex items-center">
               <DollarSign className="h-8 w-8 text-green-600" />
               <div className="ml-4">
@@ -156,7 +169,7 @@ export default function ReportesPage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="bg-white p-6 rounded-lg border border-gray-300">
             <div className="flex items-center">
               <FileText className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
@@ -166,7 +179,7 @@ export default function ReportesPage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="bg-white p-6 rounded-lg border border-gray-300">
             <div className="flex items-center">
               <TrendingUp className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
@@ -176,7 +189,7 @@ export default function ReportesPage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="bg-white p-6 rounded-lg border border-gray-300">
             <div className="flex items-center">
               <Calendar className="h-8 w-8 text-orange-600" />
               <div className="ml-4">
@@ -189,16 +202,17 @@ export default function ReportesPage() {
       )}
 
       {/* Filtros y Controles */}
-      <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+      <div className="bg-white p-6 rounded-lg mb-6 border border-gray-300">
         <div className="flex flex-wrap gap-4 items-center justify-between">
           <div className="flex flex-wrap gap-4 items-center">
             {/* Período */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Período</label>
-              <select
+              <div className='grid grid-cols-1 shrink-0 focus-within:relative'>
+                <select
                 value={periodoFiltro}
                 onChange={(e) => setPeriodoFiltro(e.target.value as PeriodoFiltro)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pr-7 pl-3 text-base text-gray-500 placeholder:text-gray-400 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 sm:text-sm/6"
               >
                 <option value="semana">Esta semana</option>
                 <option value="mes">Este mes</option>
@@ -206,6 +220,9 @@ export default function ReportesPage() {
                 <option value="año">Este año</option>
                 <option value="personalizado">Personalizado</option>
               </select>
+              <ChevronDown className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4" />
+
+              </div>
             </div>
 
             {/* Fechas personalizadas */}
@@ -217,7 +234,7 @@ export default function ReportesPage() {
                     type="date"
                     value={fechaInicio}
                     onChange={(e) => setFechaInicio(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="rounded-lg px-3 py-2 text-sm outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500"
                   />
                 </div>
                 <div>
@@ -226,7 +243,8 @@ export default function ReportesPage() {
                     type="date"
                     value={fechaFin}
                     onChange={(e) => setFechaFin(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="rounded-lg px-3 py-2 text-sm
+                  outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500"
                   />
                 </div>
               </>
@@ -235,16 +253,21 @@ export default function ReportesPage() {
             {/* Estado */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-              <select
+              <div className='grid grid-cols-1 shrink-0 focus-within:relative'>
+                <select
                 value={estadoFiltro}
                 onChange={(e) => setEstadoFiltro(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pr-7 pl-3 text-base text-gray-500 placeholder:text-gray-400 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 sm:text-sm/6"
               >
                 <option value="todas">Todas</option>
                 <option value="pagada">Pagadas</option>
                 <option value="pendiente">Pendientes</option>
                 <option value="vencida">Vencidas</option>
               </select>
+              <ChevronDown className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4" />
+
+              </div>
+              
             </div>
 
             {/* Búsqueda */}
@@ -257,7 +280,8 @@ export default function ReportesPage() {
                   placeholder="Paciente o N° factura..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="pl-10 rounded-lg px-3 py-2 text-sm
+                  outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500"
                 />
               </div>
             </div>
@@ -275,7 +299,7 @@ export default function ReportesPage() {
       </div>
 
       {/* Tabla de Boletas */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Boletas y Facturas</h2>
         </div>
@@ -348,7 +372,7 @@ export default function ReportesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
                         onClick={() => {
-                          // setSelectedBoleta(boleta)
+                          setSelectedBoleta( boleta)
                           setShowDetalleModal(true)
                         }}
                         className="text-blue-600 hover:text-blue-900 mr-3"
@@ -365,7 +389,7 @@ export default function ReportesPage() {
       </div>
 
       {/* Gráfico de Consultas por Tipo */}
-      {estadisticas && (
+      {/* {estadisticas && (
         <div className="mt-6 bg-white p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Consultas por Tipo</h3>
           <div className="space-y-4">
@@ -383,7 +407,7 @@ export default function ReportesPage() {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Modal de Detalle (opcional) */}
       {showDetalleModal && selectedBoleta && (
@@ -396,33 +420,30 @@ export default function ReportesPage() {
                   onClick={() => setShowDetalleModal(false)}
                   className="p-1 hover:bg-gray-100 rounded"
                 >
-                  ×
+                  <X className="h-5 w-5 text-gray-600" />
                 </button>
               </div>
               
               <div className="space-y-3">
                 <div>
-                  <span className="font-medium">N° Factura:</span> {selectedBoleta.numeroFactura}
+                  <span className="font-medium">N° Factura:</span> {selectedBoleta.factura}
                 </div>
                 <div>
-                  <span className="font-medium">Paciente:</span> {selectedBoleta.paciente.nombre}
+                  <span className="font-medium">Paciente:</span> {selectedBoleta.PrimerNombre} {selectedBoleta.ApellidoPaterno} ({selectedBoleta.rut})
                 </div>
                 <div>
-                  <span className="font-medium">Monto:</span> {formatMonto(selectedBoleta.monto)}
+                  <span className="font-medium">Monto:</span> {Number(selectedBoleta.monto).toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })}
                 </div>
                 <div>
-                  <span className="font-medium">Estado:</span> {selectedBoleta.estado}
+                  <span className="font-medium">Estado:</span> {selectedBoleta.TipoEstadoPago}
                 </div>
-                {selectedBoleta.metodoPago && (
+                
                   <div>
-                    <span className="font-medium">Método de Pago:</span> {selectedBoleta.metodoPago}
+                    <span className="font-medium">Fecha de Pago:</span> {String(selectedBoleta.fecha).split('T')[0]}
                   </div>
-                )}
-                {selectedBoleta.observaciones && (
                   <div>
-                    <span className="font-medium">Observaciones:</span> {selectedBoleta.observaciones}
+                    <span className="font-medium">Método de Pago:</span> {selectedBoleta.metodo_pago || 'N/A'}
                   </div>
-                )}
               </div>
 
               <div className="flex gap-3 mt-6">

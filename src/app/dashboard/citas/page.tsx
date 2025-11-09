@@ -11,6 +11,9 @@ import {
   Search,
   MoreHorizontal,
   Edit,
+  ChevronDownIcon,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { useUserData } from "@/hooks/useUserData";
 import {
@@ -45,6 +48,64 @@ export default function CitasPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCita, setSelectedCita] =
     useState<PsychologistAppointments | null>(null);
+  // Estados para la paginacion
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Cálculos de paginación
+  const totalItems = filteredCitas.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentCitas = filteredCitas.slice(startIndex, endIndex);
+  
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, dateFilter, statusFilter]);
+
+  // Funciones de paginación
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const goToPreviousPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
+  const goToNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
+  // Generar números de página visibles
+  const getVisiblePages = () => {
+    const visiblePages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        visiblePages.push(i);
+      }
+    } else {
+      const halfVisible = Math.floor(maxVisiblePages / 2);
+      let startPage = Math.max(currentPage - halfVisible, 1);
+      let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+      
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        visiblePages.push(i);
+      }
+    }
+    
+    return visiblePages;
+  };
 
   useEffect(() => {
     const fetchCitas = async () => {
@@ -249,7 +310,7 @@ export default function CitasPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="p-6 pt-12 md:p-8 max-w-7xl mx-auto">
+      <div className="min-h-screen p-6 pt-12 md:p-8 max-w-7xl mx-auto">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
@@ -277,15 +338,16 @@ export default function CitasPage() {
       </div>
 
       {/* Filtros y búsqueda */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-300 p-6 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           {/* Búsqueda */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <div className="relative flex-1 max-w-md w-full ">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
             <input
               type="text"
-              placeholder="Buscar por paciente o motivo..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Buscar por paciente..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+              text-base text-gray-500 placeholder:text-gray-400 sm:text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -293,8 +355,9 @@ export default function CitasPage() {
 
           {/* Filtros */}
           <div className="flex flex-wrap gap-3">
-            <select
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            <div className="grid shrink-0 grid-cols-1 focus-within:relative">
+              <select
+              className="col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pr-7 pl-3 text-base text-gray-500 placeholder:text-gray-400 outline-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 sm:text-sm/6"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value as FilterType)}
             >
@@ -303,41 +366,70 @@ export default function CitasPage() {
               <option value="semana">Esta semana</option>
               <option value="mes">Este mes</option>
             </select>
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
+              />
+            </div>
+            
+            <div className="grid shrink-0 grid-cols-1 focus-within:relative">
+              <select
+                className="col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pr-7 pl-3 text-base text-gray-500 placeholder:text-gray-400 outline-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 sm:text-sm/6
+              "
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+              >
+                <option value="todas">Todos los estados</option>
+                <option value="Programada">Programadas</option>
+                <option value="Completada">Completadas</option>
+                <option value="Cancelada">Canceladas</option>
+                <option value="No Asistió">No Asistió</option>
+              </select>
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
+              />
 
-            <select
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            >
-              <option value="todas">Todos los estados</option>
-              <option value="Programada">Programadas</option>
-              <option value="Completada">Completadas</option>
-              <option value="Cancelada">Canceladas</option>
-              <option value="No Asistió">No Asistió</option>
-            </select>
+            </div>
+
           </div>
         </div>
       </div>
 
+      {/* Información de resultados */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-gray-600">
+          Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} resultados
+        </div>
+        {totalItems > 0 && (
+          <div className="text-sm text-gray-600">
+            Página {currentPage} de {totalPages}
+          </div>
+        )}
+      </div>
+
       {/* Estadísticas rápidas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-xl border border-gray-200">
+      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white hover:bg-backgroundCard hover:border-blue-300 py-4 px-2 rounded-xl border border-gray-300">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Calendar className="h-6 w-6 text-blue-600" />
-            </div>
+
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Citas</p>
-              <p className="text-2xl font-bold text-gray-900">{citas.length}</p>
+              <p className="text-sm font-medium text-gray-600">Citas para hoy</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {
+                  citas.filter(
+                    (c) =>
+                      String(c.fechaCita) === new Date().toISOString().split("T")[0]
+                  ).length
+                }
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-gray-200">
+        <div className="bg-white hover:bg-backgroundCard hover:border-blue-300 p-4 rounded-xl border border-gray-300">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
+
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Completadas</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -347,11 +439,9 @@ export default function CitasPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-gray-200">
+        <div className="bg-white hover:bg-backgroundCard hover:border-blue-300 p-4 rounded-xl border border-gray-300">
           <div className="flex items-center">
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <Clock className="h-6 w-6 text-orange-600" />
-            </div>
+
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Pendientes</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -360,32 +450,21 @@ export default function CitasPage() {
             </div>
           </div>
         </div>
-
-        <div className="bg-white p-6 rounded-xl border border-gray-200">
+        <div className="bg-white hover:bg-backgroundCard hover:border-blue-300 p-4 rounded-xl border border-gray-300">
           <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <User className="h-6 w-6 text-purple-600" />
-            </div>
+
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Hoy</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {
-                  citas.filter(
-                    (c) =>
-                      String(c.fechaCita) ===
-                      new Date().toISOString().split("T")[0]
-                  ).length
-                }
-              </p>
+              <p className="text-sm font-medium text-gray-600">Total Citas</p>
+              <p className="text-2xl font-bold text-gray-900">{citas.length}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Lista de citas */}
+      {/* Lista de citas - usando currentCitas en lugar de filteredCitas */}
       <div className="space-y-4">
-        {filteredCitas.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+        {currentCitas.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-300 p-12 text-center">
             <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               No hay citas
@@ -395,41 +474,32 @@ export default function CitasPage() {
             </p>
           </div>
         ) : (
-          filteredCitas.map((cita) => (
+          currentCitas.map((cita) => (
             <div
               key={cita.idCita}
               className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
             >
+              {/* ...existing cita content... */}
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 min-w-10 rounded-full bg-blue-500 flex text-2xl justify-center text-white font-medium">
-                        {cita.paciente.nombreCompleto
-                          .split(" ")
-                          .join("")
-                          .charAt(0)}
+                        {cita.paciente.nombreCompleto.split(" ").join("").charAt(0)}
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900 capitalize">
                           {cita.paciente.nombreCompleto}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          {cita.paciente.edad
-                            ? `${cita.paciente.edad} años`
-                            : "Edad no especificada"}
+                          {cita.paciente.edad ? `${cita.paciente.edad} años` : "Edad no especificada"}
                         </p>
                       </div>
                     </div>
 
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium flex gap-1 w-fit ${getEstadoColor(
-                        cita.estado_cita
-                      )}`}
-                    >
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium flex gap-1 w-fit ${getEstadoColor(cita.estado_cita)}`}>
                       {getEstadoIcon(cita.estado_cita)}
-                      {cita.estado_cita.charAt(0).toUpperCase() +
-                        cita.estado_cita.slice(1)}
+                      {cita.estado_cita.charAt(0).toUpperCase() + cita.estado_cita.slice(1)}
                     </span>
                   </div>
 
@@ -440,27 +510,9 @@ export default function CitasPage() {
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-2" />
-                      <span className="">{cita.horaCita}</span>
-                    </div>
-                    <div className="flex items-center">
-                      {/* <span className={`px-2 py-1 rounded text-xs ${cita.tipo === 'virtual' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {cita.tipo === 'virtual' ? '💻 Virtual' : '🏥 Presencial'}
-                      </span> */}
+                      <span>{cita.horaCita}</span>
                     </div>
                   </div>
-
-                  {/* {cita.motivo && (
-                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-700">
-                        <strong>Motivo:</strong> {cita.motivo}
-                      </p>
-                      {cita.notas && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          <strong>Notas:</strong> {cita.notas}
-                        </p>
-                      )}
-                    </div>
-                  )} */}
                 </div>
 
                 {/* Acciones */}
@@ -473,12 +525,14 @@ export default function CitasPage() {
                     Actualizar
                   </button>
 
-                  <button onClick={() => handleRouter() } className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2 text-sm">
+                  <button 
+                    onClick={() => handleRouter()} 
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2 text-sm"
+                  >
                     <MessageCircle className="h-4 w-4" />
                     Mensaje
                   </button>
 
-                  {/* Dropdown de acciones */}
                   <div className="relative group">
                     <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
                       <MoreHorizontal className="h-4 w-4" />
@@ -486,18 +540,14 @@ export default function CitasPage() {
                     <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
                       {cita.estado_cita === "programada" && (
                         <button
-                          onClick={() =>
-                            handleStatusChange(cita.idCita, "completada")
-                          }
+                          onClick={() => handleStatusChange(cita.idCita, "completada")}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           Marcar como completada
                         </button>
                       )}
                       <button
-                        onClick={() =>
-                          handleStatusChange(cita.idCita, "cancelada")
-                        }
+                        onClick={() => handleStatusChange(cita.idCita, "cancelada")}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                       >
                         Cancelar cita
@@ -513,6 +563,74 @@ export default function CitasPage() {
           ))
         )}
       </div>
+
+      {/* Controles de paginación */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Información de paginación */}
+          <div className="text-sm text-gray-600">
+            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de {totalItems} resultados
+          </div>
+
+          {/* Controles de navegación */}
+          <div className="flex items-center gap-2">
+            {/* Botón anterior */}
+            <button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              className="px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Anterior</span>
+            </button>
+
+            {/* Números de página */}
+            <div className="flex items-center gap-1">
+              {getVisiblePages().map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === page
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            {/* Botón siguiente */}
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <span className="hidden sm:inline">Siguiente</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Ir a página específica */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Ir a página:</span>
+            <input
+              type="number"
+              min="1"
+              max={totalPages}
+              value={currentPage}
+              onChange={(e) => {
+                const page = Number(e.target.value);
+                if (page >= 1 && page <= totalPages) {
+                  goToPage(page);
+                }
+              }}
+              className="w-16 px-2 py-1 border border-gray-200 rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Modal para actualizar cita */}
       <CitaModal

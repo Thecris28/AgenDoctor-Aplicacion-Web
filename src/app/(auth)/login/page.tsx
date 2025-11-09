@@ -1,11 +1,12 @@
 'use client';
 import { useState } from 'react'
-import { Mail, Lock, Eye, EyeOff, Stethoscope, Calendar, FileText, Activity } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, CircleCheckBig } from 'lucide-react';
 import GoogleIcon from '../../../components/ui/GoogleIcon';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LoginCredentials } from '@/interfaces/auth';
 import { useAuth } from '@/hooks/useAuth';
+import Image from 'next/image';
 
 
 export default function LoginPage() {
@@ -17,8 +18,8 @@ export default function LoginPage() {
     const {loginUser} = useAuth()
     
     const [formLoginData, setFormLoginData] = useState<LoginCredentials>({
-      email: 'javi.m@agendoctor.cl',
-      password: 'alter123'
+      email: 'javi.munoz@agendoctor.cl',
+      password: 'jav123'
     });
 
     const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,19 +62,23 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Panel Izquierdo - Información */}
       <div className="hidden lg:flex lg:w-1/3 bg-blue-600 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800"></div>
+        <div className="absolute inset-0 bg-backgroundCard"></div>
         <div className="relative z-10 flex flex-col justify-center px-12 py-8">
           {/* Logo */}
           <div className="mb-8">
-            <div className="flex items-center text-white">
-              <Stethoscope className="w-8 h-8 mr-3" />
-              <span className="text-2xl font-bold">AgenDoctor</span>
+            <div className="flex gap-4 items-center text-white">
+              <Image src="https://res.cloudinary.com/dinscegxc/image/upload/v1758835809/b3e5cab4-df53-41a9-9d3e-ef4f5a5b8c50_uzkfst.png"
+                  width={80} height={80}  alt="" />
+                  <div className="flex items-baseline">
+                <span className="text-4xl font-bold text-blue-600">Agen</span>
+                <span className="text-4xl font-bold text-gray-900">Doctor</span>
+              </div>
             </div>
           </div>
 
           {/* Título principal */}
           <div className="mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
+            <h1 className="text-4xl font-bold text-gray-700 mb-4 leading-tight">
               Comienza tu jornada de apoyo psicológico, agenda ya!
             </h1>
           </div>
@@ -81,32 +86,32 @@ export default function LoginPage() {
           {/* Lista de características */}
           <div className="space-y-6">
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-white" />
+              <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center">
+                <CircleCheckBig className="w-7 h-7 text-blue-500" />
               </div>
-              <div className="text-white">
-                <p className="text-lg font-medium">Gestiona tus citas médicas</p>
-                <p className="text-blue-100 text-sm mt-1">Agenda, reprograma y consulta tus citas fácilmente</p>
+              <div className="text-gray-900">
+                <p className="text-lg font-medium">Gestiona tus citas Psicologicas</p>
+                <p className="text-gray-500 text-sm mt-1">Agenda, reprograma y consulta tus citas fácilmente</p>
               </div>
             </div>
 
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <FileText className="w-4 h-4 text-white" />
+              <div className="">
+                <CircleCheckBig className="w-7 h-7 text-blue-500" />
               </div>
-              <div className="text-white">
+              <div className="text-gray-900">
                 <p className="text-lg font-medium">Consulta tu historial médico</p>
-                <p className="text-blue-100 text-sm mt-1">Accede a tu información médica cuando la necesites</p>
+                <p className="text-gray-500 text-sm mt-1">Accede a tu información médica cuando la necesites</p>
               </div>
             </div>
 
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <Activity className="w-4 h-4 text-white" />
+              <div className="flex-shrink-0 w-8 h-8  rounded-full flex items-center justify-center">
+                <CircleCheckBig className="w-7 h-7 text-blue-500" />
               </div>
-              <div className="text-white">
+              <div className="text-gray-900">
                 <p className="text-lg font-medium">Accede a órdenes y recetas médicas</p>
-                <p className="text-blue-100 text-sm mt-1">Descarga y consulta tus documentos médicos</p>
+                <p className="text-gray-500 text-sm mt-1">Descarga y consulta tus documentos médicos</p>
               </div>
             </div>
           </div>

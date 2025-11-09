@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+:root {
+  --backgroudCard: #E6F1FD;
+}
 /* :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -18,6 +21,25 @@
     --foreground: #ededed;
   }
 } */
+
+@theme {
+  --color-backgroundCard: #E6F1FD;
+  --color-moradoClaro: #EDEEFC;
+  --color-heroBg: #ECF6FF;
+}
+
+@layer utilities {
+  .clip-circle-0 {
+    clip-path: circle(0% at top right);
+  }
+  .clip-circle-full {
+      clip-path: circle(150% at top right);
+  }
+  .clip-circle-none {
+      clip-path: none;
+  }
+  
+}
 
 body {
   background: var(--background);

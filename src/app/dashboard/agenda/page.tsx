@@ -281,14 +281,14 @@ export default function AgendaPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Columna 1: Gestión de Horarios del Día */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white rounded-lg p-6 border border-gray-300">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Horarios del Día</h2>
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2"
+                className="rounded-lg px-3 py-2 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500 text-base"
               />
             </div>
 
@@ -370,7 +370,7 @@ export default function AgendaPage() {
 
         {/* Columna 2: Pacientes que Necesitan Seguimiento */}
         <div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white rounded-lg p-6 border border-gray-300">
             <div className="flex items-center gap-2 mb-6">
               <AlertCircle className="h-5 w-5 text-orange-500" />
               <h2 className="text-xl font-semibold text-gray-900">Citas pendientes para finalizar.</h2>

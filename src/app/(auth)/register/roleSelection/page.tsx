@@ -16,9 +16,9 @@ export default function RegisterRoleSelection() {
   };
 
   return (
-    <div className="bg-white flex items-center justify-center p-4 mt-25">
+    <div className="flex items-center justify-center p-4 py-[5%]">
       <div className="w-full max-w-md">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-8">
+        <div className="bg-white border border-gray-300 rounded-2xl shadow-xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">

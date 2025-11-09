@@ -101,7 +101,7 @@ export default function IdentifyPsychologist() {
   }
 
   return (
-    <section className="bg-white flex flex-col items-center justify-center p-4 mt-25">
+    <section className="flex flex-col items-center justify-center p-4 py-[5%]">
       <div className="w-full max-w-md">
         <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-4 md:p-8">
           <div className="text-center mb-8">

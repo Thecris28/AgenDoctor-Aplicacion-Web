@@ -1,12 +1,21 @@
-import Header from "@/components/Header";
-import Image from "next/image";
+import Features from "@/components/landingPage/Features";
+import Footer from "@/components/landingPage/Footer";
+import Header from "@/components/landingPage/Header";
+import Hero from "@/components/landingPage/Hero";
+import HowItWorks from "@/components/landingPage/HowItWorks";
+
+
+
 
 export default function Home() {
   return (
-    <main>
+    <main className="">
       <Header />
-      <h1>Welcome to the Doctor's Portal</h1>
-      <Image src="/doctor.jpg" alt="Doctor" width={500} height={500} />
+      <Hero/>
+      <Features />
+      <HowItWorks />
+      <Footer />
+      
     </main>
   );
 }

@@ -33,28 +33,9 @@ export const especialidades: Especialidad[] = [
   },
 ];
 
-
-// export const horariosDisponibles = [
-//   '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-//   '12:00', '12:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', 
-//   '17:00', '17:30', '18:00', '18:30'
-// ];
-
-// Datos simulados de disponibilidad por profesional
-// export const disponibilidadProfesionales = {
-//   '1': { // Dr. Carlos Mendoza
-//     diasDisponibles: [1, 2, 3, 4, 5], // Lunes a Viernes
-//     horariosOcupados: {
-//       '2024-01-15': ['09:00', '10:30', '15:00'],
-//       '2024-01-16': ['08:30', '11:00', '16:30'],
-//     }
-//   },
-//   '2': { // Dra. Patricia Morales
-//     diasDisponibles: [1, 2, 3, 4, 6], // Lunes a Jueves y Sábado
-//     horariosOcupados: {
-//       '2024-01-15': ['10:00', '14:30'],
-//       '2024-01-16': ['09:30', '15:30', '17:00'],
-//     }
-//   },
-//   // Agregar más disponibilidad según sea necesario
-// };
+export const linksLanding = [
+  { name: 'Inicio', href: '#' },
+  { name: 'Especialidades', href: '#especialidades' },
+  { name: 'Psicologos', href: '/search' },
+  { name: 'Articulos', href: '#especialidades' },
+];
