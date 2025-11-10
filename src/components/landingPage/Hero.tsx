@@ -8,7 +8,7 @@ export default function Hero() {
   const router = useRouter();
 
   return (
-    <section className="bg-heroBg h-5/6 grid grid-cols-2 w-full items-center px-40 pt-30 gap-20">
+    <section className="h-5/6 grid grid-cols-2 items-center justify-between pt-30 gap-40">
         <div>
             <div className="max-w-md">
             <h2 className="text-5xl font-bold text-blue-400">Tu salud mental merece prioridad.</h2>

@@ -4,7 +4,6 @@ import { motion, useScroll, useMotionValueEvent } from 'motion/react'
 import NavbarWeb from "./NavbarWeb";
 import NavbarMobile from "./NavbarMobile";
 import { useState } from 'react';
-import Image from 'next/image';
 
 const headerVariants = {
   visible: { y: 0 },

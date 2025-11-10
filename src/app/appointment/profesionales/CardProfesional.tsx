@@ -5,8 +5,8 @@ import { Calendar, Clock, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import React, { useState } from 'react'
 
 interface CardProfesionalProps {
-   psicologo: Psicologo;
-   imagen?: string;
+    psicologo: Psicologo;
+    imagen?: string;
 }
 
 
@@ -17,7 +17,7 @@ export default function CardProfesional({ psicologo, imagen }: CardProfesionalPr
     const horarioAtencion = "Lun-Vie 9:00 - 18:00";
     const ValorSesion = psicologo.ValorSesion;
     const rating = 4.5
-    
+
     // Información adicional para el dropdown
     const descripcion = psicologo.Descripcion || "Psicólogo clínico con más de 10 años de experiencia en terapia cognitivo-conductual, especializado en tratamiento de ansiedad, depresión y trastornos del estado de ánimo. Enfoque terapéutico centrado en el paciente con técnicas basadas en evidencia científica.";
     const especialidades = [psicologo.NombreEspecialidad]
@@ -48,40 +48,40 @@ export default function CardProfesional({ psicologo, imagen }: CardProfesionalPr
                     <div className="w-18 h-18 rounded-full overflow-hidden bg-gray-100">
                         <div className="w-18 h-18 rounded-full overflow-hidden bg-gray-100">
                             {imagen ? (
-            <img 
-                src={`/${imagen}`} 
-                alt={`${psicologo.NombreCompleto}`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                    // Si la imagen falla al cargar, ocultar la imagen y mostrar iniciales
-                    const imgElement = e.currentTarget;
-                    const initialsDiv = imgElement.parentElement?.querySelector('.initials-fallback') as HTMLElement;
-                    if (initialsDiv) {
-                        imgElement.style.display = 'none';
-                        initialsDiv.style.display = 'flex';
-                    }
-                }}
-            />
-        ) : null}
-        
-        <div 
-            className="initials-fallback w-full h-full bg-blue-500 flex items-center justify-center text-white text-2xl font-semibold"
-            style={{ display: imagen ? 'none' : 'flex' }}
-        >
-            {psicologo.NombreCompleto?.split(' ')[0].charAt(0).toUpperCase()}
-            {/* {psicologo.NombreCompleto?.split(' ').map(name => name.charAt(0)).join('').substring(2, 3).toUpperCase()} */}
-        </div>
-                          </div>
+                                <img
+                                    src={`/${imagen}`}
+                                    alt={`${psicologo.NombreCompleto}`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        // Si la imagen falla al cargar, ocultar la imagen y mostrar iniciales
+                                        const imgElement = e.currentTarget;
+                                        const initialsDiv = imgElement.parentElement?.querySelector('.initials-fallback') as HTMLElement;
+                                        if (initialsDiv) {
+                                            imgElement.style.display = 'none';
+                                            initialsDiv.style.display = 'flex';
+                                        }
+                                    }}
+                                />
+                            ) : null}
+
+                            <div
+                                className="initials-fallback w-full h-full bg-blue-500 flex items-center justify-center text-white text-2xl font-semibold"
+                                style={{ display: imagen ? 'none' : 'flex' }}
+                            >
+                                {psicologo.NombreCompleto?.split(' ')[0].charAt(0).toUpperCase()}
+                                {/* {psicologo.NombreCompleto?.split(' ').map(name => name.charAt(0)).join('').substring(2, 3).toUpperCase()} */}
+                            </div>
+                        </div>
                     </div>
                     <div className='flex flex-col items-center md:items-start mt-4 md:mt-0'>
                         <h2 className='font-bold text-lg'>{nombre_psicologo}</h2>
                         <span className='text-sm text-blue-500 font-medium'>{psicologo.NombreEspecialidad}</span>
                     </div>
-                    <div className='flex-grow flex justify-center md:justify-end mt-4 md:mt-0'>
+                    {/* <div className='flex-grow flex justify-center md:justify-end mt-4 md:mt-0'>
                         <button className='bg-gray-50 border border-gray-200 py-2 px-3 mr-2 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600'>
                             Agendar Cita
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
@@ -113,7 +113,7 @@ export default function CardProfesional({ psicologo, imagen }: CardProfesionalPr
 
             {/* Botón para expandir/contraer */}
             <div className='border-t border-gray-200'>
-                <button 
+                <button
                     onClick={() => setIsExpanded(!isExpanded)}
                     className='w-full py-3 px-4 flex items-center justify-center space-x-2 text-gray-600 hover:bg-gray-50 transition-colors rounded-b-lg'
                 >
@@ -144,7 +144,7 @@ export default function CardProfesional({ psicologo, imagen }: CardProfesionalPr
                         <h3 className='font-semibold text-gray-900 mb-2'>Especialidades</h3>
                         <div className='flex flex-wrap gap-2'>
                             {especialidades.map((esp, index) => (
-                                <span 
+                                <span
                                     key={index}
                                     className='px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full'
                                 >

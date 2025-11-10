@@ -3,6 +3,7 @@ export interface Especialidad {
   nombre: string;
   descripcion: string;
   icono: string;
+  imageUrl?: string;
 }
 
 export interface Profesional {

@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram } from 'lucide-react';
 
 export default function Footer() {
     const year = new Date().getFullYear();
@@ -12,11 +11,6 @@ export default function Footer() {
             <p className="text-gray-400 mb-6 max-w-md">
               Conectamos a las personas con profesionales de la salud mental de manera fácil, segura y accesible.
             </p>
-            <div className="flex space-x-4">
-              <Facebook className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
-              <Twitter className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
-              <Instagram className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
-            </div>
           </div>
 
           <div>

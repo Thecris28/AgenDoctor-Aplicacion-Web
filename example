@@ -1,5 +1,0 @@
-API_URL=https://agendoctor-08c6836dec7d.herokuapp.com
-NEXT_PUBLIC_API_URL=https://agendoctor-08c6836dec7d.herokuapp.com
-NEXT_PUBLIC_API_TRANSBANK_URL=https://agendoctor-08c6836dec7d.herokuapp.com/api/v1/transbank
-
-renombrar a .env.example
