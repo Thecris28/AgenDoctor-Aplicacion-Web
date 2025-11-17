@@ -1,5 +1,5 @@
 'use client'
-import { Home, User, Calendar, Users, Settings, FileText, LogOut, BookOpen, ClipboardList, Clock, MessageSquare, HeartPulse, Award, Activity } from 'lucide-react';
+import { Home, Calendar, Users, Settings, FileText, LogOut, Clock, MessageSquare, HeartPulse, Award, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -48,7 +48,7 @@ export default function Sidebar() {
   };
   
   fetchUserData();
-}, [user]);
+}, [user, setPatient]);
 
   // Extraer la sección activa de la ruta
   const section = pathname?.split('/').pop() || 'inicio';

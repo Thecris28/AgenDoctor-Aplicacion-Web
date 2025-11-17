@@ -50,7 +50,8 @@ export default function LoginPage() {
           console.log('Login successful:', result);
           router.push('/dashboard');
         }
-      } catch (error: any) {
+      } catch (error) {
+        if (error instanceof Error)
         setLoginError(error.message || 'Credenciales incorrectas. Por favor intenta de nuevo.');
 
       } finally {

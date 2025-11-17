@@ -1,5 +1,5 @@
 'use client'
-import React, { use, useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { User, Mail, Phone, CreditCard, Loader } from 'lucide-react';
 import { createTransaction } from '@/services/paymentService';
 import { Horas, Psicologo } from '@/interfaces/agendamiento';

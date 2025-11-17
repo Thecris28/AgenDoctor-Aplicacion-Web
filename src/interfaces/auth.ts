@@ -82,7 +82,15 @@ export interface Profesional {
   titulo:          string;
   especialidad:    string;
   observaciones:   string;
-  antecedentes:    any[];
+  antecedentes:    Antecedente[];
+}
+interface Antecedente {
+  idAntecedente: number,
+  descripcion: string,
+  tipoAntecedente: string,
+  fechaAntecedente: string,
+  estadoAntecedente: string,
+  institucion: string
 }
 export interface RegisterPatient {
   Calle:             string;

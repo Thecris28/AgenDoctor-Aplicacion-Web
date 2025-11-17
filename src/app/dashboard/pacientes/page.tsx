@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, Eye, Edit, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Search, Filter, Eye, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { getPatientHistory, patientList } from '@/services/psicologoService';
 import { useUserData } from '@/hooks/useUserData';
 import { PatientData } from '@/interfaces/psychologist';
@@ -18,9 +18,7 @@ export interface Historial {
   observaciones?:    string;
 }
 
-
 // Nuevas interfaces para el historial
-
 
 interface HistorialPaciente {
   paciente: {
@@ -50,7 +48,7 @@ export default function PacientesPage() {
   const [citasHistorial, setCitasHistorial] = useState<Historial[]>([]);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
 
-  const { userData, isLoading } = useUserData();
+  const { userData } = useUserData();
 
   const fetchPatients = async () => {
     if (!userData) return;
@@ -104,24 +102,6 @@ const loadHistorialPaciente = async (pacienteId: number, pacienteData: any) => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, patients]);
 
-  const formatoFecha = (fecha: Date) => {
-    const date = new Date(fecha);
-    return date.toLocaleDateString('es-CL', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  // Función para formatear fecha del historial
-  const formatFechaHistorial = (fecha: string) => {
-    return new Date(fecha).toLocaleDateString('es-CL', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
 
   // Función para obtener el color del estado
   const getEstadoColor = (estado: string) => {
@@ -402,7 +382,7 @@ const loadHistorialPaciente = async (pacienteId: number, pacienteData: any) => {
                             <div>
                               <h4 className="font-semibold text-gray-900">Cita #{cita.idCita}</h4>
                               <p className="text-sm text-gray-600">
-                                {formatFechaHistorial(String(cita.FechaCita))} • {cita.HoraCita.slice(0, 5)} • {cita.Duracion}
+                                {formatFecha(String(cita.FechaCita).split('T')[0])} • {cita.HoraCita.slice(0, 5)} • {cita.Duracion}
                               </p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoColor(cita.DescripcionEstado)}`}>
@@ -464,7 +444,7 @@ const loadHistorialPaciente = async (pacienteId: number, pacienteData: any) => {
                           Cerrar
                         </button>
                         <button className="px-4 py-2 text-sm bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">
-                          Agendar Nueva Cita
+                          Descargar Informe
                         </button>
                       </div>
                     </div>

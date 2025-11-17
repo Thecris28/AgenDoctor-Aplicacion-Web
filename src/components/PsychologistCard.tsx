@@ -1,16 +1,14 @@
 
 
 import {
-  MapPin,
   Calendar,
   Clock,
-  Star,
-  Heart,
-  Slice,
+  Star
 } from "lucide-react";
 import Link from "next/link";
 import { Psicologo } from "@/interfaces/agendamiento";
 import FavoriteButton from "./FavoriteButton";
+import Image from "next/image";
 
 
 interface PsychologistCardProps {
@@ -28,20 +26,9 @@ interface PsychologistCardProps {
 
 export default function PsychologistCard({
   psicologo,
-  name = "Dr. Juan Carlos Psychology",
-  title = "Psicólogo Clínico | Especialista en Terapia Cognitivo-Conductual",
-  location = "Madrid, España",
-  email = "dr.psychology@email.com",
-  phone = "+34 612 345 678",
-  birthDate = "15 Mar 1985",
-  joinedDate = "12 Ene 2020",
   description = "Como psicólogo clínico con experiencia en TCC, me apasiona ayudar a las personas a desarrollar herramientas efectivas para el manejo del estrés y la mejora del bienestar mental. Entiendo que la terapia va más allá de las técnicas y debe estar arraigada en las necesidades individuales de cada paciente.",
-  profileImage,
 }: PsychologistCardProps) {
 
-
-
-  const numberRamdon = Math.floor(Math.random() * 11);
 
   const rating = Math.floor(Math.random() * 5) + 1;
 
@@ -101,9 +88,11 @@ export default function PsychologistCard({
         <div className="absolute -bottom-13 left-1/2 transform -translate-x-1/2">
           <div className="w-30 h-30 rounded-full border-4 border-white bg-blue-100 flex items-center justify-center overflow-hidden">
             {searchImage ? (
-              <img
+              <Image
+                width={120}
+                height={120}
                 src={searchImage(psicologo.IdPsicologo+4)}
-                alt={name}
+                alt={psicologo.NombreCompleto}
                 className="w-full h-full object-cover"
               />
             ) : (

@@ -1,5 +1,4 @@
 'use client';
-import { AnimatePresence, motion } from "motion/react"
 import { linksLanding } from '@/data/mockData';
 import Link from 'next/link';
 import React, { useState } from 'react'
@@ -41,7 +40,7 @@ export default function NavbarMobile() {
         transition-(clip-path) duration-500 ${isOpen === false ? 'clip-circle-0' : 'clip-circle-full'} 
         md:bg-transparent md:clip-circle-none md:gap-6`} >
                 {
-                    linksLanding.map((link, index) => (
+                    linksLanding.map((link) => (
                        
                         <Link href={link.href} key={link.name}
                         className="text-2xl font-normal text-black"

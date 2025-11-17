@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Clock, Plus, X, Check, Coffee, User, AlertCircle, Calendar, Edit3, Trash2 } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { Clock, X, Check, Coffee, User, AlertCircle, Calendar, Edit3, Trash2 } from 'lucide-react'
 import { useUserData } from '@/hooks/useUserData'
 import { getPsychologistAppointments, getTimePsychologist, setSchedule } from '@/services/psicologoService'
 import Modal from './Modal'
@@ -12,25 +12,6 @@ import Link from 'next/link'
 type EventType = 'disponible' | 'bloqueo' | 'descanso'| 'agendado' | 'completada'
 type PlantillaType = 'completa' | 'manana' | 'tarde' | 'noche'
 
-interface HorarioSlot {
-  id: number
-  fecha: string
-  hora: string
-  tipo: EventType
-  titulo?: string
-  descripcion?: string
-  disponible: boolean
-}
-
-// interface PacienteSeguimiento {
-//   id: number
-//   nombre: string
-//   ultimaCita: string
-//   diasSinCita: number
-//   motivo: string
-//   prioridad: 'alta' | 'media' | 'baja'
-//   telefono?: string
-// }
 
 interface DisponibilidadDia {
   fecha: string
@@ -77,39 +58,35 @@ export default function AgendaPage() {
     noche: ['20:00', '21:30']
   }
 
-  const loadHorariosDelDia = async () => {
-      if (!userData?.idPsicologo) return
-      try {
-        const horarios = await getTimePsychologist(userData.idPsicologo, selectedDate)
-        setHorariosDelDia(horarios)
-      } catch (error) {
-        console.error('Error al cargar horarios:', error)
-      }
-
+  // Define las funciones con useCallback
+  const loadHorariosDelDia = useCallback(async () => {
+    if (!userData?.idPsicologo) return
+    try {
+      const horarios = await getTimePsychologist(userData.idPsicologo, selectedDate)
+      setHorariosDelDia(horarios)
+    } catch (error) {
+      console.error('Error al cargar horarios:', error)
     }
+  }, [userData?.idPsicologo, selectedDate])
 
-    const fetchCitas = async () => {
-        setLoading(true);
-        if (!userData?.idPsicologo) return;
-        try {
-          const response = await getPsychologistAppointments(
-            userData?.idPsicologo
-          );
-          setCitas(response);
-          console.log("Citas fetched:", response);
-        } catch (error) {
-          console.error("Error fetching appointments:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
+  const fetchCitas = useCallback(async () => {
+    setLoading(true);
+    if (!userData?.idPsicologo) return;
+    try {
+      const response = await getPsychologistAppointments(userData?.idPsicologo);
+      setCitas(response);
+      console.log("Citas fetched:", response);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userData?.idPsicologo])
 
   useEffect(() => {
     loadHorariosDelDia()
-    loadHorariosDelDia()
     fetchCitas()
-  }, [selectedDate, userData?.idPsicologo])
-
+  }, [loadHorariosDelDia, fetchCitas])
   
 
   // const loadPacientesSeguimiento = async () => {
@@ -166,6 +143,7 @@ export default function AgendaPage() {
         loadHorariosDelDia()
       
     } catch (error) {
+      console.error('Error al aplicar plantilla:', error)
       alert('Error al aplicar plantilla')
     } finally {
       setLoading(false)

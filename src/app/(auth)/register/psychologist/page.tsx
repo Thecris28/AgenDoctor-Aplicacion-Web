@@ -1,7 +1,7 @@
 // src/app/register/psychologist/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
-import { Mail, Lock, User, Eye, EyeOff, Phone, Award, BookOpen, FileText, MapPin, ArrowRight, ArrowLeft, User2 } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Phone, Award, MapPin, ArrowRight, ArrowLeft, User2 } from 'lucide-react';
 import { registerPsychologist } from '@/services/authService';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -27,7 +27,7 @@ export default function PsychologistRegistrationPage() {
   const [comunas, setComunas] = useState<Comuna[]>([]);
   const [specialties, setSpecialties] = useState<Specialties[]>([]);
   const [loadingComunas, setLoadingComunas] = useState(true);
-  const { profesional, getNombreCompleto } = useProfesionalStore();
+  const { profesional } = useProfesionalStore();
 
   // Cargar comunas al montar el componente
   useEffect(() => {
@@ -126,7 +126,8 @@ export default function PsychologistRegistrationPage() {
       console.log('Datos a enviar:', formatedData);
       await registerPsychologist(formatedData);
       router.push('/registrationSuccess?role=psychologist');
-    } catch (error: any) {
+    } catch (error) {
+      if (error instanceof Error)
       setRegisterError(error.message || 'Error al registrarse. Por favor intenta de nuevo.');
     } finally {
       setIsLoading(false);

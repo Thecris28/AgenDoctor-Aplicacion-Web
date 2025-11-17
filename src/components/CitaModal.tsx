@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { X, Save, User, Calendar, Clock, Phone, Mail, MapPin, AlertCircle } from 'lucide-react'
+import { X, Save, User, Calendar, Clock, AlertCircle } from 'lucide-react'
 import { PsychologistAppointments } from '@/interfaces/psychologist'
 
 interface CitaModalProps {

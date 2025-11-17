@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import {
   Calendar,
   Clock,
-  User,
   MessageCircle,
   CheckCircle,
   XCircle,
@@ -93,7 +92,7 @@ export default function CitasPage() {
     } else {
       const halfVisible = Math.floor(maxVisiblePages / 2);
       let startPage = Math.max(currentPage - halfVisible, 1);
-      let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+      const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
       
       if (endPage - startPage < maxVisiblePages - 1) {
         startPage = Math.max(endPage - maxVisiblePages + 1, 1);
@@ -391,6 +390,19 @@ export default function CitasPage() {
               />
 
             </div>
+            <div className="flex items-center gap-2">
+  <span className="text-sm text-gray-600">Mostrar:</span>
+  <select
+    value={itemsPerPage}
+    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+    className="px-2 py-1 border border-gray-300 rounded text-sm"
+  >
+    <option value={5}>5</option>
+    <option value={10}>10</option>
+    <option value={20}>20</option>
+    <option value={50}>50</option>
+  </select>
+</div>
 
           </div>
         </div>

@@ -1,9 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, MapPin, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
 import { getPatientAppointments } from '@/services/patientService';
-import { useAuthStore } from '@/store/auth.store';
-import { usePatientStore } from '@/store/patient.store';
 import { PatientAppointment } from '@/interfaces/patient';
 import { useUserData } from '@/hooks/useUserData';
 import Link from 'next/link';
@@ -14,7 +12,12 @@ export default function MisCitasPage() {
   const [citas, setCitas] = useState<PatientAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const { userData } = useUserData();
-  const { patient } = usePatientStore();
+  const [ isOpen, setIsOpen ] = useState(false);
+
+  // Función para cerrar el modal
+  const closeModal = () => {
+    setIsOpen(false);
+  };
   
   // useEffect(() => {
   //   setLoading(true);
@@ -92,7 +95,7 @@ export default function MisCitasPage() {
       day: 'numeric'
     });
   };
-
+  console.log('Citas cargadas:', citas);
   const CitaCard = ({ cita }: { cita: PatientAppointment }) => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start space-y-3 mb-4 flex-col md:flex-row">
@@ -295,8 +298,91 @@ export default function MisCitasPage() {
               )}
             </div>
           )}
+          
         </>
       )}
-    </div>
+      {/* Contenido del modal */}
+                      {citasCompletadas ? (
+                        <div className="space-y-6">
+      
+                          {/* Lista de citas */}
+                          <div className="space-y-4 max-h-96 overflow-y-auto">
+                            {citasCompletadas.map((cita) => (
+                              <div key={cita.IdCita} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                                {/* Header de la cita */}
+                                <div className="flex justify-between items-start mb-3">
+                                  <div>
+                                    <h4 className="font-semibold text-gray-900">Cita #{cita.IdCita}</h4>
+                                    <p className="text-sm text-gray-600">
+                                      {formatFecha(String(cita.fecha).split('T')[0])} • {cita.hora.slice(0, 5)} • 60 min
+                                    </p>
+                                  </div>
+                                  <span className={`px-3 py-1 rounded-full text-xs font-medium border ${(cita.estado_cita)}`}>
+                                    {cita.estado_cita}
+                                  </span>
+                                </div>
+      
+                                {/* Detalles de la cita */}
+                                <div className="space-y-3">
+                                  {cita.Diagnostico && (
+                                    <div>
+                                      <h5 className="font-medium text-gray-700 text-sm mb-1">Diagnóstico:</h5>
+                                      <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded border-l-4 border-blue-200">
+                                        {cita.Diagnostico}
+                                      </p>
+                                    </div>
+                                  )}
+                                  
+                                  {cita.Tratamiento && (
+                                    <div>
+                                      <h5 className="font-medium text-gray-700 text-sm mb-1">Tratamiento:</h5>
+                                      <p className="text-sm text-gray-600 bg-green-50 p-3 rounded border-l-4 border-green-200">
+                                        {cita.Tratamiento}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+      
+                                {/* Footer con información adicional */}
+                                <div className="mt-3 pt-3 border-t border-gray-100">
+                                  <div className="flex justify-between items-center text-xs text-gray-500">
+                                    <span>Estado: {cita.estado_cita}</span>
+                                    <span>Duración: 60 min</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+      
+                          {/* Footer del modal */}
+                          <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                            <p className="text-sm text-gray-500">
+                              Mostrando {citas.length} cita(s) del historial
+                            </p>
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={closeModal}
+                                className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                              >
+                                Cerrar
+                              </button>
+                              <button className="px-4 py-2 text-sm bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">
+                                Descargar Informe
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        // Estado vacío
+                        <div className="text-center py-12">
+                          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                            <Eye className="h-8 w-8 text-gray-400" />
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">No hay historial disponible</h3>
+                          <p className="text-gray-500">Este paciente aún no tiene citas registradas.</p>
+                        </div>
+                      )}
+                    </div>
+                 
   );
 }

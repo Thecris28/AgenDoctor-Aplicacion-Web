@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Calendar, DollarSign, FileText, TrendingUp, Download, Filter, Eye, Search, ChevronDown, X } from 'lucide-react'
+import { Calendar, DollarSign, FileText, TrendingUp, Download, Eye, Search, ChevronDown, X } from 'lucide-react'
 import { useUserData } from '@/hooks/useUserData'
 import { getBillingInfo } from '@/services/psicologoService'
 

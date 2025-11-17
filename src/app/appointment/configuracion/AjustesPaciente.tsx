@@ -19,10 +19,10 @@ interface Props {
 export default function AjustesPacienteComponent({comunas}: Props) {
     const pacienteId = useAuthStore(state => state.user?.idPersona);
 
-    const updatePatientInfo = async (updatedData: any) => {
+    const updatePatientInfo = async (updatedData:any) => {
         // Lógica para actualizar la información del paciente
         console.log("Updating patient info with data:", updatedData);
-        // Aquí puedes llamar a un servicio para actualizar la información en el backend
+       
     };
 
   return (

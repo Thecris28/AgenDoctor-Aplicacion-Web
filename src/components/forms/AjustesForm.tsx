@@ -62,7 +62,6 @@ export default function AjustesForm({
   onUpdatePassword,
   comunas,
   showProfessionalSection = false,
-  professionalData: initialProfessionalData,
   onUpdateProfessional,
   specialties = []
 }: AjustesFormProps) {

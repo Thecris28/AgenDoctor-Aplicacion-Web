@@ -1,8 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react';
 import { useUserData } from '@/hooks/useUserData';
-import { getChat, getPatientAppointments } from '@/services/patientService';
-import { PatientAppointment } from '@/interfaces/patient';
+import { getChat } from '@/services/patientService';
 import { Send, Search, Phone, Video, MoreVertical, Paperclip, Smile, ArrowLeft } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '@/store/auth.store';

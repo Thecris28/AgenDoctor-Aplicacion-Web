@@ -1,5 +1,6 @@
 import { inter } from '@/app/layout'
 import { especialidades } from '@/data/mockData'
+import Image from 'next/image'
 import React from 'react'
 
 export default function Especialidades() {
@@ -18,7 +19,10 @@ export default function Especialidades() {
           {especialidades.slice(1).map((esp) => (
             <div key={esp.id} className="text-center rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-gray-50 border border-gray-200 hover:border-sky-500 hover:bg-blue-400/10">
               <div className="w-full">
-                <img src={esp.imageUrl} alt={esp.nombre} className="w-full h-45 object-cover "/>
+                <Image
+                 width={ 300}
+                 height={ 180 }
+                 src={esp.imageUrl!} alt={esp.nombre} className="w-full h-45 object-cover "/>
               </div>
                <div className='p-6'>
                 <h3 className="text-xl font-semibold text-blue-500 mb-4">{esp.nombre}</h3>

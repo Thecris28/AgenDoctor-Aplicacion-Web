@@ -26,10 +26,8 @@ export async function getLogin(email: string, password: string) {
     };
 }
 
-const API_REGISTER_URL = 'http://localhost:3000/usuarios/registro_psicologo';
 
-export async function registerPsychologist(psychologistData:any) {
-  console.log('Iniciando registro con datos:', psychologistData);
+export async function registerPsychologist(psychologistData: any) {
 
     const response = await fetch(`${API_URL}/usuarios/registro_psicologo`, {
     method: 'POST',

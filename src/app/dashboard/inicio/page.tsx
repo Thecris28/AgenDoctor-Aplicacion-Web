@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Calendar, Clock, Users, MessageSquare, TrendingUp, Bell, Star, Activity } from 'lucide-react'
+import { Calendar, Clock, Users, MessageSquare, TrendingUp, Star, Activity } from 'lucide-react'
 import { useUserData } from '@/hooks/useUserData'
 import { getPsychologistAppointments } from '@/services/psicologoService'
 

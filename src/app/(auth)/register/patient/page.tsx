@@ -96,8 +96,10 @@ export default function PatientRegistrationPage() {
       }
       await registerPatient(formatedData);
       router.push('/registrationSuccess?role=patient');
-    } catch (error: any) {
-      setRegisterError(error.message || 'Error al registrarse. Por favor intenta de nuevo.');
+    } catch (error) {
+      if (error instanceof Error) {
+        setRegisterError(error.message || 'Error al registrarse. Por favor intenta de nuevo.');
+      }
     } finally {
       setIsLoading(false);
     }

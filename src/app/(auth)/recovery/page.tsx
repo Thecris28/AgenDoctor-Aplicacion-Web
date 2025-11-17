@@ -42,7 +42,8 @@ export default function ForgetPassword() {
 
       router.push(`/recovery/verify-code?email=${encodeURIComponent(email)}`)
     }, 2000)
-  } catch (err) {
+  } catch (error) {
+    if (error instanceof Error)
     setError('No se pudo enviar el correo de recuperación. Intenta nuevamente.')
     setIsSubmitting(false)
   }

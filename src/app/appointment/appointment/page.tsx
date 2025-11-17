@@ -12,6 +12,7 @@ import { Especialidad, Horas, Psicologo } from '@/interfaces/agendamiento';
 import { getAllPsychologists } from '@/services/psicologoService';
 
 import { ArrowLeft, Calendar1, Clock } from 'lucide-react';
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 
 type Step = 'especialidad' | 'profesional' | 'fecha-hora' | 'datos' | 'confirmacion';
@@ -236,8 +237,10 @@ export default function AppointmentPage() {
                 <h4 className="font-semibold text-gray-900 mb-4">Resumen de la Cita</h4>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center space-x-3">
-                    <img
+                    <Image
                       src={'/default-avatar.png'}
+                      width={32}
+                      height={32}
                       alt={selectedProfesional!.NombreCompleto}
                       className="w-8 h-8 rounded-full object-cover"
                     />

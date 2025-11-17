@@ -1,7 +1,6 @@
 
-import { Specialties } from "@/interfaces/psychologist";
+
 import { getComunas } from "@/services/comunasService";
-import { getSpecialties } from "@/services/psicologoService";
 import AjustesPacienteComponent from "./AjustesPaciente";
 
 

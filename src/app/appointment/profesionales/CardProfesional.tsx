@@ -2,6 +2,7 @@
 
 import { Psicologo } from '@/interfaces/agendamiento';
 import { Calendar, Clock, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import Image from 'next/image';
 import React, { useState } from 'react'
 
 interface CardProfesionalProps {
@@ -48,8 +49,10 @@ export default function CardProfesional({ psicologo, imagen }: CardProfesionalPr
                     <div className="w-18 h-18 rounded-full overflow-hidden bg-gray-100">
                         <div className="w-18 h-18 rounded-full overflow-hidden bg-gray-100">
                             {imagen ? (
-                                <img
+                                <Image
                                     src={`/${imagen}`}
+                                    width={72}
+                                    height={72}
                                     alt={`${psicologo.NombreCompleto}`}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
