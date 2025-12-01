@@ -1,5 +1,6 @@
 'use client';
 import { linksLanding } from '@/data/mockData';
+import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react'
 
@@ -9,25 +10,33 @@ export default function NavbarMobile() {
     const toggleMenu = () => {
         setIsOpen(!isOpen)
     }
-  return (
-    <nav>
-        <nav className="md:hidden">
+    return (
+        <nav className="md:hidden flex items-center justify-between px-4 py-2 bg-white ">
+            <div className='flex items-center gap-2.5'>
+                <div className="relative">
+                    <Image src="/logo5.svg" alt="Logo" width={50} height={50} />
+                </div>
+                <div className="flex items-baseline">
+                    <span className="text-2xl font-bold text-blue-600">Agen</span>
+                    <span className="text-2xl font-bold text-gray-900">Doctor</span>
+                </div>
+            </div>
             <div className="relative z-30">
-            <label className="relative w-6 h-5 cursor-pointer block bg-transparent" htmlFor="burger">
-                <input 
-                    type="checkbox" 
-                    id="burger" 
-                    className="hidden" 
-                    checked={isOpen}
-                    onChange={toggleMenu}
-                />
-                <span className={`block absolute h-1 w-full bg-white rounded-lg left-0 top-0 transform transition-all duration-250 ease-in-out origin-[left]
+                <label className="relative w-6 h-5 cursor-pointer block bg-transparent" htmlFor="burger">
+                    <input
+                        type="checkbox"
+                        id="burger"
+                        className="hidden"
+                        checked={isOpen}
+                        onChange={toggleMenu}
+                    />
+                    <span className={`block absolute h-1 w-full bg-black rounded-lg left-0 top-0 transform transition-all duration-250 ease-in-out origin-[left]
                     ${isOpen ? 'rotate-44 top-0 left-[5px]' : ''}`}></span>
-                <span className={`block absolute h-1 w-full bg-white rounded-lg left-0 top-1/2 -translate-y-1/2 transform transition-all duration-250 ease-in-out
+                    <span className={`block absolute h-1 w-full bg-black rounded-lg left-0 top-1/2 -translate-y-1/2 transform transition-all duration-250 ease-in-out
                     ${isOpen ? 'w-0 opacity-0' : ''}`}></span>
-                <span className={`block absolute h-1 w-full bg-white rounded-lg left-0 top-full -translate-y-full transform transition-all duration-250 ease-in-out origin-[left]
+                    <span className={`block absolute h-1 w-full bg-black rounded-lg left-0 top-full -translate-y-full transform transition-all duration-250 ease-in-out origin-[left]
                     ${isOpen ? '-rotate-43 top-[28px] left-[5px]' : ''}`}></span>
-            </label> 
+                </label>
             </div>
 
             {/* <button className="w-10 h-10 p-2 flex items-center justify-center bg-backgroundCard rounded cursor-pointer
@@ -41,18 +50,17 @@ export default function NavbarMobile() {
         md:bg-transparent md:clip-circle-none md:gap-6`} >
                 {
                     linksLanding.map((link) => (
-                       
+
                         <Link href={link.href} key={link.name}
-                        className="text-2xl font-normal text-black"
-                        onClick={() => setIsOpen(false)}
+                            className="text-2xl font-normal text-black"
+                            onClick={() => setIsOpen(false)}
                         >{link.name}</Link>
-                        
+
                     ))
                 }
 
             </div>
 
         </nav>
-    </nav>
-  )
+    )
 }
